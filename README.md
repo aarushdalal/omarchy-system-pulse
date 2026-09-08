@@ -1,26 +1,90 @@
 # System Pulse (`omarchy-system-pulse`)
 
-> **Unofficial / Community Project**: Formerly Omni Center / System Plus. An independent open-source telemetry and control center for Omarchy.
+> **Unofficial / Community Plugin**: Formerly Omni Center / System Plus. An independent open-source hardware telemetry and control center for Omarchy.
 
-A unified center-island hardware telemetry, audio control, and quick-action dashboard designed for Omarchy Quickshell and Hyprland.
+A unified center-island hardware telemetry, audio control, and quick-action dashboard designed for Omarchy Quickshell and Hyprland — displaying CPU, memory, storage, audio, fan, and weather data directly in the Omarchy top bar center island.
+
+This project was developed through an AI-assisted workflow. The concept, customization, configuration, testing, integration, and final iteration were directed and carried out by me.
 
 ---
 
-## Status / Experimental Warning
+## My Contribution
 
-System Pulse displays hardware metrics by reading standard Linux `/proc`, `/sys`, and D-Bus interfaces. **It does not claim universal hardware support.** Fan speeds, CPU temperature sensors, and battery telemetry vary significantly depending on hardware vendor, kernel drivers, and motherboard ACPI tables. Missing sensors are detected and handled gracefully without requiring root permissions.
+I did not write Omarchy, Quickshell, Hyprland, or PipeWire from scratch. What I contributed:
+
+- **Plugin Architecture**: Designed and structured this as a conformant Omarchy plugin with `manifest.json`, `BarWidget.qml`, and `SystemPulseDashboard.qml` following the Omarchy plugin system conventions.
+- **Bar Widget**: Designed and implemented `BarWidget.qml` as the center-island widget showing live CPU load, memory, and audio indicators in the Omarchy top bar at all times.
+- **Dashboard Panel**: Designed and built `SystemPulseDashboard.qml` — the expandable multi-tab hardware management center.
+- **Telemetry Cards**: Designed and authored all 7 card QML components in `cards/`:
+  - `ComputeCard.qml`: CPU core utilization, load averages, memory consumption, thermal readings.
+  - `StorageCard.qml`: Filesystem disk space and partition health.
+  - `AudioCard.qml`: Physical volume sliders, output sink selection, MPRIS media controls.
+  - `DeckCard.qml`: Quick-action shortcuts and system controls.
+  - `FanCard.qml`: Fan speed telemetry and optional profile switching.
+  - `WeatherCard.qml`: Lightweight weather summary via `wttr.in`.
+  - `SettingsCard.qml`: Plugin configuration and display toggles.
+- **Audio Visualization**: Integrated optional lightweight audio spectrum visualization connecting to PipeWire / PulseAudio via `libpulse-simple` (C source: `audio_spectrum.c` in omarchy-screensaver-studio, shared library approach).
+- **Hardware Sensor Reading**: Implemented metric collection via standard Linux `/proc`, `/sys`, and D-Bus interfaces — without root privileges.
+- **Fan Curve Configuration**: Designed `fan-curve.json` format for thermal management profiles.
+- **Installer**: Authored `./install.sh` for safe user-scope deployment.
+- **Documentation**: Wrote all usage, configuration, and troubleshooting docs.
+- **Testing**: Tested on Omarchy 4.0.2 / Quickshell 0.3.1 / PipeWire 1.6.8 on AMD Ryzen 7 PRO 5850U hardware.
+
+---
+
+## Based On / Credits
+
+- **[Omarchy](https://github.com/basecamp/omarchy)** — The open-source Arch Linux desktop environment and plugin system by Basecamp. This plugin uses the Omarchy plugin manifest format and bar widget API.
+- **[Quickshell](https://quickshell.outfoxxed.me)** — The Qt6 QML Wayland layer-shell desktop shell that renders the center-island widget and dashboard.
+- **[Hyprland](https://hyprland.org)** — The Wayland tiling compositor.
+- **[PipeWire](https://pipewire.org)** — The audio server. Audio controls and visualization read from PipeWire via WirePlumber and `libpulse-simple`.
+- **[wttr.in](https://wttr.in)** — Public weather API used for the optional weather card.
+- **`lm_sensors`** — Used for hardware thermal and fan sensor reading.
+- **`playerctl`** — Used for MPRIS media transport controls.
+
+**Related Repos**:
+- [omarchy-cloud-sync](https://github.com/aarushdalal/omarchy-cloud-sync) — Cloud backup dashboard
+- [omarchy-config-time-machine](https://github.com/aarushdalal/omarchy-config-time-machine) — Configuration snapshot system
+- [omarchy-focus-hub](https://github.com/aarushdalal/omarchy-focus-hub) — Pomodoro and focus session manager
+- [omarchy-screensaver-studio](https://github.com/aarushdalal/omarchy-screensaver-studio) — Multi-mode screensaver engine
+- [omarchy-shell-polish](https://github.com/aarushdalal/omarchy-shell-polish) — Bar layout and shell polish snippets
+
+---
+
+## Plugin Manifest
+
+This repository includes a valid `manifest.json` for the Omarchy plugin system:
+
+```json
+{
+  "schemaVersion": 1,
+  "id": "daemon0.system-pulse",
+  "name": "System Pulse",
+  "version": "1.0.0",
+  "author": "Daemon0",
+  "description": "Unified system telemetry, audio controls, and hardware management center for Omarchy",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "System Pulse",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "center"
+  }
+}
+```
 
 ---
 
 ## Features
 
-- **Compute Telemetry**: Real-time CPU core utilization, load averages, memory consumption, and thermal readings where exposed by kernel drivers.
+- **Compute Telemetry**: Real-time CPU core utilization, load averages, memory consumption, and thermal readings.
 - **Storage Metrics**: Filesystem disk space usage and partition health.
-- **Audio Control Center**: Master physical volume sliders, output sink selection, and MPRIS media player controls (play/pause/next/previous).
-- **Audio Visualization (Optional)**: Lightweight audio spectrum visualization connecting to PipeWire / PulseAudio via `libpulse-simple` (compiled optionally from source).
-- **Fan Controls & Profiles**: Fan speed telemetry and optional curve switching when supported hardware interfaces exist.
-- **Weather Widget**: Optional lightweight weather summary fetched via `wttr.in`.
-- **Center Island Placement**: Designed for the center section of the Omarchy top bar.
+- **Audio Control Center**: Physical volume sliders, output sink selection, and MPRIS media player controls (play/pause/next/previous).
+- **Audio Visualization (Optional)**: Lightweight spectrum visualization via `libpulse-simple` (compiled from source).
+- **Fan Controls & Profiles**: Fan speed telemetry and optional curve switching where supported.
+- **Weather Widget**: Optional lightweight weather summary via `wttr.in`.
+- **Center Island Placement**: Designed for the center section of the Omarchy top bar (`defaultSection: center`).
 
 ---
 
@@ -52,16 +116,16 @@ System Pulse displays hardware metrics by reading standard Linux `/proc`, `/sys`
 
 ## Installation
 
-### Method 1: Using Omarchy Plugin Manager
+### Method 1: Using Omarchy Plugin Manager (Recommended)
 
 ```bash
-omarchy plugin add https://github.com/YOUR-USERNAME/omarchy-system-pulse.git --enable
+omarchy plugin add https://github.com/aarushdalal/omarchy-system-pulse.git --enable
 ```
 
 ### Method 2: Using the Safe User Installer
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/omarchy-system-pulse.git
+git clone https://github.com/aarushdalal/omarchy-system-pulse.git
 cd omarchy-system-pulse
 
 ./install.sh check
@@ -79,15 +143,14 @@ cd omarchy-system-pulse
    sensors            # Verify hardware temperature sensors
    playerctl status   # Check active media players
    ```
-2. **Never Requires Root**:
-   System Pulse reads standard unprivileged sysfs paths (`/sys/class/hwmon`, `/sys/class/power_supply`). Do not run the shell or installer as root.
+2. **Never Requires Root**: System Pulse reads standard unprivileged sysfs paths. Do not run as root.
 
 ---
 
 ## Usage
 
 - Click the center-bar widget to open the full System Pulse dashboard.
-- Cycle through tabs: Compute, Storage, Audio, Deck, Fan, Weather.
+- Cycle through tabs: **Compute**, **Storage**, **Audio**, **Deck**, **Fan**, **Weather**.
 
 ---
 
@@ -118,10 +181,12 @@ omarchy plugin update daemon0.system-pulse
 
 ---
 
-## Uninstall / Rollback
+## Uninstall
 
 ```bash
 ./install.sh uninstall
+# Or:
+omarchy plugin remove daemon0.system-pulse --yes
 ```
 
 ---
@@ -136,55 +201,19 @@ omarchy plugin update daemon0.system-pulse
 
 ## Troubleshooting
 
-- **Audio visualizer does not show activity**:
-  Ensure `libpulse-simple` headers are installed (`sudo pacman -S libpulse`) and re-run `./install.sh install` to compile the spectrum helper. If omitted, all other cards work normally.
-- **Fan speeds not visible**:
-  Run `sensors-detect` to check if your motherboard provides standard `hwmon` fan sensors.
+- **Audio visualizer does not show activity**: Ensure `libpulse-simple` headers are installed (`sudo pacman -S libpulse`) and re-run `./install.sh install` to compile the spectrum helper.
+- **Fan speeds not visible**: Run `sensors-detect` to check if your motherboard provides standard `hwmon` fan sensors.
 
 ---
 
 ## Showcase
 
-> Visual previews, UI screenshots, and recordings for documentation and release verification.
-
-### Main experience
-
-<!-- Future image: assets/showcase/system_plus_compute.png -->
-![Main desktop experience](assets/showcase/system_plus_compute.png)
-
-### Feature gallery
-
-<!-- Future image: assets/showcase/system_plus_audio.png -->
-![system_plus_audio.png](assets/showcase/system_plus_audio.png)
-
-<!-- Future image: assets/showcase/system_plus_compute.png -->
-![system_plus_compute.png](assets/showcase/system_plus_compute.png)
-
-<!-- Future image: assets/showcase/system_plus_deck.png -->
-![system_plus_deck.png](assets/showcase/system_plus_deck.png)
-
-<!-- Future image: assets/showcase/system_plus_fan.png -->
-![system_plus_fan.png](assets/showcase/system_plus_fan.png)
-
-<!-- Future image: assets/showcase/system_plus_storage.png -->
-![system_plus_storage.png](assets/showcase/system_plus_storage.png)
-
-<!-- Future image: assets/showcase/system_plus_weather.png -->
-![system_plus_weather.png](assets/showcase/system_plus_weather.png)
-
-<!-- Future image: assets/showcase/feature-07.png -->
-<!-- Future image: assets/showcase/feature-08.png -->
-<!-- Future image: assets/showcase/feature-09.png -->
-<!-- Future image: assets/showcase/feature-10.png -->
-### Motion and interaction
-
-<!-- Future GIF: assets/showcase/interaction-01.gif -->
-<!-- Future GIF: assets/showcase/interaction-02.gif -->
-### Video demonstrations
-
-<!-- Future thumbnail: assets/showcase/video-01-thumbnail.png -->
-<!-- [![Watch demo video](assets/showcase/video-01-thumbnail.png)](https://github.com/YOUR-USERNAME/PROJECT-NAME/releases) -->
-
+![Compute telemetry](assets/showcase/system_plus_compute.png)
+![Audio control](assets/showcase/system_plus_audio.png)
+![System deck](assets/showcase/system_plus_deck.png)
+![Fan telemetry](assets/showcase/system_plus_fan.png)
+![Storage metrics](assets/showcase/system_plus_storage.png)
+![Weather widget](assets/showcase/system_plus_weather.png)
 
 ---
 
@@ -197,3 +226,11 @@ Issues and enhancements are welcome!
 ## License
 
 [MIT License](LICENSE).
+
+---
+
+## Credits / Third-Party Notices
+
+- Built for the [Omarchy](https://github.com/basecamp/omarchy) desktop environment.
+- Powered by [Quickshell](https://quickshell.outfoxxed.me/), [Hyprland](https://hyprland.org/), and [PipeWire](https://pipewire.org/).
+- Not an official Omarchy product.
