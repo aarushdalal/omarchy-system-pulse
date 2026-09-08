@@ -150,48 +150,36 @@ omarchy plugin update daemon0.system-pulse
 ### Main experience
 
 <!-- Future image: assets/showcase/system_plus_compute.png -->
-<!-- ![Main desktop experience](assets/showcase/system_plus_compute.png) -->
+![Main desktop experience](assets/showcase/system_plus_compute.png)
 
 ### Feature gallery
 
 <!-- Future image: assets/showcase/system_plus_audio.png -->
-<!-- ![system_plus_audio.png](assets/showcase/system_plus_audio.png) -->
+![system_plus_audio.png](assets/showcase/system_plus_audio.png)
 
 <!-- Future image: assets/showcase/system_plus_compute.png -->
-<!-- ![system_plus_compute.png](assets/showcase/system_plus_compute.png) -->
+![system_plus_compute.png](assets/showcase/system_plus_compute.png)
 
 <!-- Future image: assets/showcase/system_plus_deck.png -->
-<!-- ![system_plus_deck.png](assets/showcase/system_plus_deck.png) -->
+![system_plus_deck.png](assets/showcase/system_plus_deck.png)
 
 <!-- Future image: assets/showcase/system_plus_fan.png -->
-<!-- ![system_plus_fan.png](assets/showcase/system_plus_fan.png) -->
+![system_plus_fan.png](assets/showcase/system_plus_fan.png)
 
 <!-- Future image: assets/showcase/system_plus_storage.png -->
-<!-- ![system_plus_storage.png](assets/showcase/system_plus_storage.png) -->
+![system_plus_storage.png](assets/showcase/system_plus_storage.png)
 
 <!-- Future image: assets/showcase/system_plus_weather.png -->
-<!-- ![system_plus_weather.png](assets/showcase/system_plus_weather.png) -->
+![system_plus_weather.png](assets/showcase/system_plus_weather.png)
 
 <!-- Future image: assets/showcase/feature-07.png -->
-<!-- ![Feature preview 7](assets/showcase/feature-07.png) -->
-
 <!-- Future image: assets/showcase/feature-08.png -->
-<!-- ![Feature preview 8](assets/showcase/feature-08.png) -->
-
 <!-- Future image: assets/showcase/feature-09.png -->
-<!-- ![Feature preview 9](assets/showcase/feature-09.png) -->
-
 <!-- Future image: assets/showcase/feature-10.png -->
-<!-- ![Feature preview 10](assets/showcase/feature-10.png) -->
-
 ### Motion and interaction
 
 <!-- Future GIF: assets/showcase/interaction-01.gif -->
-<!-- ![Interaction preview](assets/showcase/interaction-01.gif) -->
-
 <!-- Future GIF: assets/showcase/interaction-02.gif -->
-<!-- ![Transition preview](assets/showcase/interaction-02.gif) -->
-
 ### Video demonstrations
 
 <!-- Future thumbnail: assets/showcase/video-01-thumbnail.png -->
