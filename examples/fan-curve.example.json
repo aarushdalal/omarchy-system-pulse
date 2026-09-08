@@ -1,0 +1,30 @@
+{
+  "profile": "balanced",
+  "maxTestMode": false,
+  "curve": [
+    {
+      "temp": 40,
+      "speed": 0
+    },
+    {
+      "temp": 50,
+      "speed": 25
+    },
+    {
+      "temp": 62,
+      "speed": 50
+    },
+    {
+      "temp": 75,
+      "speed": 75
+    },
+    {
+      "temp": 85,
+      "speed": 90
+    },
+    {
+      "temp": 95,
+      "speed": 100
+    }
+  ]
+}

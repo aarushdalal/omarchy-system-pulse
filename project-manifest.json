@@ -1,0 +1,33 @@
+{
+  "name": "omarchy-system-pulse",
+  "id": "daemon0.system-pulse",
+  "version": "1.0.0",
+  "description": "Unified system telemetry, audio controls, and hardware management center for Omarchy",
+  "author": "Daemon0",
+  "license": "MIT",
+  "repository": "https://github.com/YOUR-USERNAME/omarchy-system-pulse",
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "compatibility": {
+    "omarchy": "dev (13f18b2c) / 4.0.2",
+    "quickshell": "0.3.1",
+    "hyprland": "0.56.2"
+  },
+  "dependencies": {
+    "required": [
+      "omarchy",
+      "quickshell",
+      "bash",
+      "jq"
+    ],
+    "optional": [
+      "pipewire",
+      "pipewire-pulse",
+      "playerctl",
+      "lm_sensors",
+      "curl",
+      "gcc"
+    ]
+  }
+}

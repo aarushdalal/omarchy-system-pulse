@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "daemon0.system-pulse",
+  "name": "System Pulse",
+  "version": "1.0.0",
+  "author": "Daemon0",
+  "description": "Unified system telemetry, audio controls, and hardware management center for Omarchy",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "System Pulse",
+    "description": "Hardware telemetry, audio visualizer, and system control island",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "center"
+  }
+}
