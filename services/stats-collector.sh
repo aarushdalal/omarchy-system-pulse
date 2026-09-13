@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# High-speed enhanced telemetry collector for Omarchy System Plus Island
+# High-speed enhanced telemetry collector for Omarchy System Pulse Island
+set -euo pipefail
+export PATH="/usr/bin:/bin"
+export LC_ALL="C"
 
 # CPU utilization & compute vs io-wait
 read -r _ u n s i io irq sirq st _ < /proc/stat

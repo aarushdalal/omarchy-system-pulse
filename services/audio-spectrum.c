@@ -50,7 +50,7 @@ void init_filters(void) {
 static void get_target_device(char *dest, size_t maxlen) {
     strncpy(dest, "@DEFAULT_MONITOR@", maxlen - 1);
     dest[maxlen - 1] = '\0';
-    FILE *fp = popen("pactl list short sinks 2>/dev/null", "r");
+    FILE *fp = popen("/usr/bin/pactl list short sinks 2>/dev/null", "r");
     if (fp) {
         char line[256];
         while (fgets(line, sizeof(line), fp)) {

@@ -98,7 +98,15 @@ do_install() {
     esac
   done
 
-  
+  # Compilation of native fan configuration store helper
+  if [[ -f "$TARGET_PLUGIN_DIR/services/fan-config-store.c" ]]; then
+    if command -v gcc >/dev/null 2>&1; then
+      echo "Compiling native secure fan configuration store..."
+      run_cmd gcc -O2 -Wall -Wextra -pedantic "$TARGET_PLUGIN_DIR/services/fan-config-store.c" -o "$TARGET_PLUGIN_DIR/services/fan-config-store"
+      run_cmd chmod 755 "$TARGET_PLUGIN_DIR/services/fan-config-store"
+    fi
+  fi
+
   # Optional compilation of native audio spectrum analyzer
   if [[ -f "$TARGET_PLUGIN_DIR/services/audio-spectrum.c" ]]; then
     if command -v gcc >/dev/null 2>&1 && pkg-config --exists libpulse-simple 2>/dev/null; then

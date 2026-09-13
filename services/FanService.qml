@@ -116,8 +116,12 @@ Item {
     save()
   }
 
-  // Persistent File Storage: ~/.config/omarchy/fan-curve.json
-  readonly property string configPath: Quickshell.env("HOME") + "/.config/omarchy/fan-curve.json"
+  // Trusted fixed path helper resolution for atomic no-follow configuration storage
+  readonly property string helperPath: {
+    var raw = Qt.resolvedUrl("fan-config-store.py").toString()
+    if (raw.indexOf("file://") === 0) raw = raw.substring(7)
+    return raw
+  }
 
   function save() {
     var data = {
@@ -125,24 +129,50 @@ Item {
       "maxTestMode": root.maxTestMode,
       "curve": root.curve
     }
-    saveProc.command = [
-      "bash", "-c",
-      "cat > '" + root.configPath + "' << 'EOF'\n" + JSON.stringify(data, null, 2) + "\nEOF"
-    ]
+    saveProc.payload = JSON.stringify(data, null, 2) + "\n"
+    if (saveProc.running) {
+      saveProc.running = false
+    }
     saveProc.running = true
   }
 
   function load() {
-    loadProc.command = ["cat", root.configPath]
+    if (loadProc.running) {
+      loadProc.running = false
+    }
     loadProc.running = true
   }
 
   Process {
     id: saveProc
+    command: ["/usr/bin/python3", root.helperPath, "save"]
+    clearEnvironment: true
+    environment: ({
+      "PATH": "/usr/bin:/bin",
+      "LC_ALL": "C",
+      "HOME": Quickshell.env("HOME") || "",
+      "XDG_CONFIG_HOME": Quickshell.env("XDG_CONFIG_HOME") || ""
+    })
+    stdinEnabled: true
+    property string payload: ""
+    onStarted: {
+      if (payload.length > 0) {
+        write(payload)
+        payload = ""
+      }
+    }
   }
 
   Process {
     id: loadProc
+    command: ["/usr/bin/python3", root.helperPath, "load"]
+    clearEnvironment: true
+    environment: ({
+      "PATH": "/usr/bin:/bin",
+      "LC_ALL": "C",
+      "HOME": Quickshell.env("HOME") || "",
+      "XDG_CONFIG_HOME": Quickshell.env("XDG_CONFIG_HOME") || ""
+    })
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {

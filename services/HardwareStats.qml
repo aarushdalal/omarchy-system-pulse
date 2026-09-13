@@ -71,9 +71,21 @@ Item {
     onTriggered: root.refresh()
   }
 
+  readonly property string collectorPath: {
+    var raw = Qt.resolvedUrl("stats-collector.sh").toString()
+    if (raw.indexOf("file://") === 0) raw = raw.substring(7)
+    return raw
+  }
+
   Process {
     id: collectorProc
-    command: [Quickshell.env("HOME") + "/.config/omarchy/plugins/daemon0.system-pulse/services/stats-collector.sh"]
+    command: ["/usr/bin/bash", root.collectorPath]
+    clearEnvironment: true
+    environment: ({
+      "PATH": "/usr/bin:/bin",
+      "LC_ALL": "C",
+      "HOME": Quickshell.env("HOME") || ""
+    })
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {

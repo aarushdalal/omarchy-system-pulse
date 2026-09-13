@@ -21,9 +21,22 @@ Item {
     }
   }
 
+  readonly property string spectrumBinaryPath: {
+    var raw = Qt.resolvedUrl("audio-spectrum").toString()
+    if (raw.indexOf("file://") === 0) raw = raw.substring(7)
+    return raw
+  }
+
   Process {
     id: spectrumProc
-    command: [Quickshell.env("HOME") + "/.config/omarchy/plugins/daemon0.system-pulse/services/audio-spectrum"]
+    command: [root.spectrumBinaryPath]
+    clearEnvironment: true
+    environment: ({
+      "PATH": "/usr/bin:/bin",
+      "LC_ALL": "C",
+      "XDG_RUNTIME_DIR": Quickshell.env("XDG_RUNTIME_DIR") || "",
+      "PULSE_SERVER": Quickshell.env("PULSE_SERVER") || ""
+    })
     running: root.active
     stdout: SplitParser {
       onRead: function(line) {

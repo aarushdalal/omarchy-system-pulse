@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Ui
@@ -38,7 +39,14 @@ Item {
 
   Process {
     id: monitorProc
-    command: ["${XDG_BIN_HOME:-$HOME/.local/bin}/omarchy-system-monitor"]
+    command: ["/usr/bin/omarchy-system-monitor"]
+    clearEnvironment: true
+    environment: ({
+      "PATH": "/usr/bin:/bin",
+      "LC_ALL": "C",
+      "HOME": Quickshell.env("HOME") || "",
+      "XDG_RUNTIME_DIR": Quickshell.env("XDG_RUNTIME_DIR") || ""
+    })
   }
 
   Column {

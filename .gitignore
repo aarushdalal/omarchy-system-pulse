@@ -5,6 +5,8 @@ __pycache__/
 *.so
 *.o
 *.a
+services/audio-spectrum
+services/fan-config-store
 
 # Caches and logs
 *.log

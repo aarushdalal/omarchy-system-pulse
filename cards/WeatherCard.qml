@@ -23,9 +23,22 @@ Item {
     if (!weatherProc.running) weatherProc.running = true
   }
 
+  readonly property string weatherScriptPath: {
+    var raw = Qt.resolvedUrl("../services/weather-fetcher.sh").toString()
+    if (raw.indexOf("file://") === 0) raw = raw.substring(7)
+    return raw
+  }
+
   Process {
     id: weatherProc
-    command: [Quickshell.env("HOME") + "/.config/omarchy/plugins/daemon0.system-pulse/services/weather-fetcher.sh"]
+    command: ["/usr/bin/bash", root.weatherScriptPath]
+    clearEnvironment: true
+    environment: ({
+      "PATH": "/usr/bin:/bin",
+      "LC_ALL": "C",
+      "HOME": Quickshell.env("HOME") || "",
+      "XDG_CACHE_HOME": Quickshell.env("XDG_CACHE_HOME") || ""
+    })
     running: true
     stdout: StdioCollector {
       waitForEnd: true
