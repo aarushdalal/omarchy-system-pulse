@@ -5,7 +5,12 @@ All notable changes to `omarchy-system-pulse` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2026-09-13
+## [1.0.2] - 2026-09-13
+
+### Added
+- Native PipeWire stream tracking and browser media reconciliation (`services/MediaTrackingService.qml`).
+- Active window toplevel title reconciliation with Wayland for Chromium/Brave browsers to resolve multi-tab media desynchronization.
+- Dedicated hardware volume sink tracking and mouse wheel track navigation.
 
 ### Security
 - Replaced shell string interpolation and redirection in `services/FanService.qml` with a native file-descriptor based atomic no-follow store helper (`services/fan-config-store.c` and `services/fan-config-store.py`).

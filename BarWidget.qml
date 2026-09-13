@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import Quickshell.Services.Mpris
 import Quickshell.Services.Pipewire
 import qs.Commons
@@ -86,63 +87,22 @@ BarWidget {
   }
 
   // ==========================================================================
-  // MEDIA PLAYBACK MONITORS
+  // MEDIA PLAYBACK & AUDIO MONITORS (RECONCILED WITH MPRIS & WAYLAND TOPLEVELS)
   // ==========================================================================
-  function isWallpaperOrDummy(p) {
-    if (!p) return true;
-    var name = String(p.identity || p.desktopEntry || p.dbusName || "").toLowerCase();
-    var track = String(p.trackTitle || "").toLowerCase();
-    if (name.indexOf("mpvpaper") !== -1 || name.indexOf("paper") !== -1) return true;
-    if (name.indexOf("mpv") !== -1 && (track.indexOf(".mp4") !== -1 || track.indexOf(".mkv") !== -1 || track.indexOf(".webm") !== -1 || track === "")) {
-      return true;
-    }
-    return false;
+  MediaTrackingService {
+    id: mediaTracker
   }
 
-  // Active Media Player detection (Strictly music/video players, ignoring wallpapers)
-  readonly property var activePlayer: {
-    if (Mpris.players && Mpris.players.values.length > 0) {
-      for (var i = 0; i < Mpris.players.values.length; i++) {
-        var p = Mpris.players.values[i];
-        if (p && !isWallpaperOrDummy(p) && p.isPlaying) return p;
-      }
-      for (var j = 0; j < Mpris.players.values.length; j++) {
-        var p2 = Mpris.players.values[j];
-        if (p2 && !isWallpaperOrDummy(p2)) return p2;
-      }
-    }
-    return null;
-  }
+  readonly property var activePlayer: mediaTracker.activePlayer
+  readonly property bool isPlaying: mediaTracker.isPlaying
+  readonly property string trackTitle: mediaTracker.title
+  readonly property string trackArtist: mediaTracker.artist
+  readonly property string trackArtUrl: mediaTracker.artUrl
+  readonly property bool hasPlaybackStream: mediaTracker.hasPlaybackStream
 
-  readonly property bool isPlaying: activePlayer ? activePlayer.isPlaying === true : false
-  readonly property string trackTitle: activePlayer && activePlayer.trackTitle ? activePlayer.trackTitle : ""
-  readonly property string trackArtist: activePlayer && activePlayer.trackArtist ? activePlayer.trackArtist : ""
-  readonly property string trackArtUrl: activePlayer && activePlayer.trackArtUrl ? activePlayer.trackArtUrl : ""
-
-  function togglePlayPause() {
-    if (!root.activePlayer || root.isWallpaperOrDummy(root.activePlayer)) return
-    if (root.activePlayer.canTogglePlaying && typeof root.activePlayer.togglePlaying === "function") {
-      root.activePlayer.togglePlaying()
-    } else if (root.activePlayer.isPlaying && root.activePlayer.canPause && typeof root.activePlayer.pause === "function") {
-      root.activePlayer.pause()
-    } else if (!root.activePlayer.isPlaying && root.activePlayer.canPlay && typeof root.activePlayer.play === "function") {
-      root.activePlayer.play()
-    } else if (typeof root.activePlayer.togglePlaying === "function") {
-      root.activePlayer.togglePlaying()
-    }
-  }
-
-  function nextTrack() {
-    if (root.activePlayer && !root.isWallpaperOrDummy(root.activePlayer) && typeof root.activePlayer.next === "function") {
-      root.activePlayer.next()
-    }
-  }
-
-  function prevTrack() {
-    if (root.activePlayer && !root.isWallpaperOrDummy(root.activePlayer) && typeof root.activePlayer.previous === "function") {
-      root.activePlayer.previous()
-    }
-  }
+  function togglePlayPause() { mediaTracker.togglePlayPause() }
+  function nextTrack() { mediaTracker.nextTrack() }
+  function prevTrack() { mediaTracker.prevTrack() }
 
   // Fingerprint Lockscreen Spacebar Wake Handler
   readonly property var lockService: (root.shell && typeof root.shell.serviceFor === "function") ? root.shell.serviceFor("omarchy.lock") : null
@@ -176,10 +136,12 @@ BarWidget {
     }
   }
 
-  // Real-Time PipeWire Audio Visualizer Engine (Only active when playing or dashboard open)
+
+
+  // Real-Time PipeWire Audio Visualizer Engine (Active when playing, audio streaming, or dashboard open)
   AudioVisualizerService {
     id: audioViz
-    active: root.isPlaying || dashboard.open
+    active: root.isPlaying || root.hasPlaybackStream || dashboard.open
   }
 
   // Popup open/close shape contract for shell/bar
@@ -327,10 +289,12 @@ BarWidget {
           visible: root.isPlaying || audioViz.hasAudio || root.trackArtUrl !== ""
 
           Image {
+            id: barArtImg
             anchors.fill: parent
             source: root.trackArtUrl
             fillMode: Image.PreserveAspectCrop
-            visible: root.trackArtUrl !== ""
+            asynchronous: true
+            visible: root.trackArtUrl !== "" && barArtImg.status === Image.Ready
           }
 
           Text {
@@ -339,7 +303,7 @@ BarWidget {
             color: Color.accent
             font.family: root.bar ? root.bar.fontFamily : Style.font.family
             font.pixelSize: Style.font.caption
-            visible: root.trackArtUrl === ""
+            visible: root.trackArtUrl === "" || barArtImg.status !== Image.Ready
           }
         }
 
@@ -380,11 +344,11 @@ BarWidget {
           anchors.verticalCenter: parent.verticalCenter
         }
 
-        // Track snippet if playing, or "System Pulse" badge if idle
+        // Track snippet if playing, or "System Plus" badge if idle
         Text {
           text: (root.isPlaying || audioViz.hasAudio)
             ? (root.trackTitle ? (root.trackTitle.length > 18 ? root.trackTitle.substring(0, 16) + "…" : root.trackTitle) : "Playing")
-            : "System Pulse"
+            : "System Plus"
           color: (root.isPlaying || audioViz.hasAudio) ? (root.bar ? root.bar.barForeground : Color.bar.text) : Qt.darker(root.bar ? root.bar.barForeground : Color.bar.text, 1.6)
           font.family: root.bar ? root.bar.fontFamily : Style.font.family
           font.pixelSize: Style.font.caption
@@ -490,6 +454,13 @@ BarWidget {
           root.nextTrack()
         }
       }
+      onWheel: function(wheel) {
+        if (wheel.angleDelta.y > 0) {
+          root.prevTrack()
+        } else if (wheel.angleDelta.y < 0) {
+          root.nextTrack()
+        }
+      }
     }
   }
 
@@ -497,7 +468,7 @@ BarWidget {
     id: dashboard
     anchorItem: islandSurface
     bar: root.bar
-    mediaService: root
+    mediaService: mediaTracker
     visualizerService: audioViz
     anchorHovered: islandMouse.containsMouse
   }

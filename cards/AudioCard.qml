@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Mpris
 import Quickshell.Services.Pipewire
@@ -25,7 +26,7 @@ Item {
     return false;
   }
 
-  readonly property var activePlayer: {
+  readonly property var mprisFallbackPlayer: {
     if (Mpris.players && Mpris.players.values.length > 0) {
       for (var i = 0; i < Mpris.players.values.length; i++) {
         var p = Mpris.players.values[i];
@@ -39,16 +40,18 @@ Item {
     return null;
   }
 
-  readonly property bool isPlaying: activePlayer ? activePlayer.isPlaying === true : false
-  readonly property string title: activePlayer && activePlayer.trackTitle ? activePlayer.trackTitle : "No Media Playing"
-  readonly property string artist: activePlayer && activePlayer.trackArtist ? activePlayer.trackArtist : "Ready"
-  readonly property string album: activePlayer && activePlayer.trackAlbum ? activePlayer.trackAlbum : ""
-  readonly property string artUrl: activePlayer && activePlayer.trackArtUrl ? activePlayer.trackArtUrl : ""
+  readonly property var activePlayer: (root.mediaService && root.mediaService.activePlayer) ? root.mediaService.activePlayer : mprisFallbackPlayer
+  readonly property bool isPlaying: root.mediaService ? root.mediaService.isPlaying === true : (activePlayer ? activePlayer.isPlaying === true : false)
+  readonly property string title: (root.mediaService && root.mediaService.title) ? root.mediaService.title : (activePlayer && activePlayer.trackTitle ? activePlayer.trackTitle : "No Media Playing")
+  readonly property string artist: (root.mediaService && root.mediaService.artist) ? root.mediaService.artist : (activePlayer && activePlayer.trackArtist ? activePlayer.trackArtist : "Ready")
+  readonly property string album: (root.mediaService && root.mediaService.album) ? root.mediaService.album : (activePlayer && activePlayer.trackAlbum ? activePlayer.trackAlbum : "")
+  readonly property string artUrl: (root.mediaService && root.mediaService.artUrl) ? root.mediaService.artUrl : (activePlayer && activePlayer.trackArtUrl ? activePlayer.trackArtUrl : "")
+  readonly property string identity: (root.mediaService && root.mediaService.identity) ? root.mediaService.identity : (activePlayer ? (activePlayer.identity || activePlayer.desktopEntry || "Media Player") : "Local Audio")
 
   readonly property real rawLength: {
     if (!activePlayer) return 0
-    if (activePlayer.trackLength && activePlayer.trackLength > 0) return Number(activePlayer.trackLength)
     if (activePlayer.length && activePlayer.length > 0) return Number(activePlayer.length)
+    if (activePlayer.trackLength && activePlayer.trackLength > 0) return Number(activePlayer.trackLength)
     if (activePlayer.metadata) {
       if (activePlayer.metadata["mpris:length"]) return Number(activePlayer.metadata["mpris:length"])
       if (activePlayer.metadata.length) return Number(activePlayer.metadata.length)
@@ -80,21 +83,69 @@ Item {
 
   Timer {
     interval: 500
-    running: root.isPlaying && root.lengthSec > 0
+    running: root.isPlaying
     repeat: true
     onTriggered: {
-      if (root.localPositionSec < root.lengthSec) {
-        root.localPositionSec = Math.min(root.lengthSec, root.localPositionSec + 0.5)
-      }
+      root.syncPosition()
     }
   }
 
   readonly property real progressFraction: (lengthSec > 0) ? Math.min(1.0, Math.max(0.0, localPositionSec / lengthSec)) : 0.0
 
-  // System Audio Sink Volume (PipeWire)
-  readonly property var audioSink: Pipewire.defaultAudioSink
-  readonly property real currentVol: (audioSink && audioSink.audio) ? (audioSink.audio.volume || 0.0) : 0.8
-  readonly property bool isMuted: (audioSink && audioSink.audio) ? (audioSink.audio.muted === true) : false
+  // System Audio Sink Volume (PipeWire with Physical Hardware Resolution)
+  readonly property var defaultSink: Pipewire.defaultAudioSink
+  readonly property var nodes: Pipewire.nodes ? Pipewire.nodes.values : []
+  property string volumeSinkName: ""
+
+  readonly property var volumeSink: {
+    if (volumeSinkName === "" || !defaultSink) return defaultSink
+    if (volumeSinkName === String(defaultSink.name)) return defaultSink
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i]
+      if (n && n.isSink && !n.isStream && String(n.name) === volumeSinkName && n.audio)
+        return n
+    }
+    return defaultSink
+  }
+
+  Process {
+    id: volumeSinkProc
+    command: ["omarchy-audio-output-sink"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: root.volumeSinkName = String(text).trim()
+    }
+  }
+
+  Timer {
+    interval: 5000
+    running: true
+    repeat: true
+    triggeredOnStart: true
+    onTriggered: if (!volumeSinkProc.running) volumeSinkProc.running = true
+  }
+
+  readonly property real currentVol: (volumeSink && volumeSink.audio) ? (volumeSink.audio.volume || 0.0) : 0.8
+  readonly property bool isMuted: (volumeSink && volumeSink.audio) ? (volumeSink.audio.muted === true) : false
+
+  function setVolume(v) {
+    var vol = Math.max(0.0, Math.min(1.0, v))
+    if (volumeSink && volumeSink.audio) {
+      volumeSink.audio.volume = vol
+    }
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i] && String(nodes[i].name) === "easyeffects_sink" && nodes[i].audio) {
+        nodes[i].audio.volume = 1.0
+        nodes[i].audio.muted = false
+      }
+    }
+  }
+
+  function toggleMute() {
+    if (volumeSink && volumeSink.audio) {
+      volumeSink.audio.muted = !volumeSink.audio.muted
+    }
+  }
 
   Process {
     id: seekProc
@@ -106,19 +157,14 @@ Item {
     var targetMicro = Math.round(targetSec * 1000000)
     root.localPositionSec = targetSec
 
-    try {
-      if (typeof root.activePlayer.position !== "undefined") {
-        root.activePlayer.position = targetMicro
-      }
-    } catch (e) {}
-
-    var trackId = ""
-    if (root.activePlayer.metadata && root.activePlayer.metadata["mpris:trackid"]) {
-      trackId = String(root.activePlayer.metadata["mpris:trackid"])
-    }
     var busName = root.activePlayer.dbusName || ""
     if (busName) {
-      if (trackId) {
+      var trackId = ""
+      if (root.activePlayer.metadata && root.activePlayer.metadata["mpris:trackid"]) {
+        trackId = String(root.activePlayer.metadata["mpris:trackid"])
+      }
+      if (seekProc.running) seekProc.running = false
+      if (trackId && trackId !== "/org/mpris/MediaPlayer2/TrackList/NoTrack") {
         seekProc.command = ["busctl", "--user", "call", busName, "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "SetPosition", "ox", trackId, String(targetMicro)]
       } else {
         seekProc.command = ["busctl", "--user", "set-property", busName, "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "Position", "x", String(targetMicro)]
@@ -135,6 +181,14 @@ Item {
   }
 
   function togglePlayPause() {
+    if (root.mediaService && typeof root.mediaService.togglePlayPause === "function") {
+      root.mediaService.togglePlayPause()
+      return
+    }
+    if (root.mediaService && typeof root.mediaService.runAction === "function") {
+      root.mediaService.runAction("playPause", false)
+      return
+    }
     if (!root.activePlayer || root.isWallpaperOrDummy(root.activePlayer)) return
     if (root.activePlayer.canTogglePlaying && typeof root.activePlayer.togglePlaying === "function") {
       root.activePlayer.togglePlaying()
@@ -148,12 +202,28 @@ Item {
   }
 
   function nextTrack() {
+    if (root.mediaService && typeof root.mediaService.nextTrack === "function") {
+      root.mediaService.nextTrack()
+      return
+    }
+    if (root.mediaService && typeof root.mediaService.runAction === "function") {
+      root.mediaService.runAction("next", false)
+      return
+    }
     if (root.activePlayer && !root.isWallpaperOrDummy(root.activePlayer) && typeof root.activePlayer.next === "function") {
       root.activePlayer.next()
     }
   }
 
   function prevTrack() {
+    if (root.mediaService && typeof root.mediaService.prevTrack === "function") {
+      root.mediaService.prevTrack()
+      return
+    }
+    if (root.mediaService && typeof root.mediaService.runAction === "function") {
+      root.mediaService.runAction("previous", false)
+      return
+    }
     if (root.activePlayer && !root.isWallpaperOrDummy(root.activePlayer) && typeof root.activePlayer.previous === "function") {
       root.activePlayer.previous()
     }
@@ -218,17 +288,19 @@ Item {
             clip: true
 
             Image {
+              id: heroArtwork
               anchors.fill: parent
               source: root.artUrl
               fillMode: Image.PreserveAspectCrop
-              visible: root.artUrl !== ""
+              asynchronous: true
+              visible: root.artUrl !== "" && heroArtwork.status === Image.Ready
             }
 
-            // Clean Square Placeholder if no artwork
+            // Clean Square Placeholder if no artwork or failed to load
             Rectangle {
               anchors.fill: parent
               color: Style.selectedFillFor(root.foregroundColor, Color.accent)
-              visible: root.artUrl === ""
+              visible: root.artUrl === "" || heroArtwork.status !== Image.Ready
               radius: parent.radius
 
               Column {
@@ -285,7 +357,7 @@ Item {
             Item { Layout.fillWidth: true }
 
             Text {
-              text: root.activePlayer ? (root.activePlayer.identity || "Media Player") : "Local Audio"
+              text: root.identity
               color: Qt.darker(root.foregroundColor, 1.6)
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption - 1
@@ -441,6 +513,7 @@ Item {
             iconText: "󰒞"
             foreground: (root.activePlayer && root.activePlayer.shuffle) ? Color.accent : Qt.darker(root.foregroundColor, 1.6)
             fontFamily: root.fontFamily
+            enabled: root.activePlayer !== null
             onClicked: if (root.activePlayer && typeof root.activePlayer.shuffle !== "undefined") root.activePlayer.shuffle = !root.activePlayer.shuffle
           }
 
@@ -449,7 +522,7 @@ Item {
             iconText: "󰒮"
             foreground: root.foregroundColor
             fontFamily: root.fontFamily
-            enabled: root.activePlayer !== null
+            enabled: root.mediaService ? true : (root.activePlayer !== null)
             onClicked: root.prevTrack()
           }
 
@@ -480,7 +553,7 @@ Item {
             iconText: "󰒭"
             foreground: root.foregroundColor
             fontFamily: root.fontFamily
-            enabled: root.activePlayer !== null
+            enabled: root.mediaService ? true : (root.activePlayer !== null)
             onClicked: root.nextTrack()
           }
 
@@ -489,6 +562,7 @@ Item {
             iconText: "󰑖"
             foreground: (root.activePlayer && root.activePlayer.loopState && root.activePlayer.loopState !== 0) ? Color.accent : Qt.darker(root.foregroundColor, 1.6)
             fontFamily: root.fontFamily
+            enabled: root.activePlayer !== null
             onClicked: {
               if (root.activePlayer && typeof root.activePlayer.loopState !== "undefined") {
                 root.activePlayer.loopState = (root.activePlayer.loopState + 1) % 3
@@ -521,11 +595,7 @@ Item {
             MouseArea {
               anchors.fill: parent
               cursorShape: Qt.PointingHandCursor
-              onClicked: {
-                if (root.audioSink && root.audioSink.audio) {
-                  root.audioSink.audio.muted = !root.audioSink.audio.muted
-                }
-              }
+              onClicked: root.toggleMute()
             }
           }
 
@@ -549,10 +619,16 @@ Item {
               anchors.fill: parent
               cursorShape: Qt.PointingHandCursor
               onClicked: function(mouse) {
-                if (root.audioSink && root.audioSink.audio) {
-                  var v = Math.max(0.0, Math.min(1.0, mouse.x / volTrack.width))
-                  root.audioSink.audio.volume = v
+                root.setVolume(mouse.x / volTrack.width)
+              }
+              onPositionChanged: function(mouse) {
+                if (pressed) {
+                  root.setVolume(mouse.x / volTrack.width)
                 }
+              }
+              onWheel: function(wheel) {
+                var step = wheel.angleDelta.y > 0 ? 0.05 : -0.05
+                root.setVolume(root.currentVol + step)
               }
             }
           }
