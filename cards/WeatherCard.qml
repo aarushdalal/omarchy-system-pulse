@@ -113,6 +113,7 @@ Item {
 
           Text {
             text: root.location
+            textFormat: Text.PlainText
             color: Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
@@ -148,6 +149,7 @@ Item {
           Text {
             anchors.centerIn: parent
             text: root.weatherIcon
+            textFormat: Text.PlainText
             color: Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.space(38)
@@ -163,6 +165,7 @@ Item {
             spacing: Style.space(10)
             Text {
               text: root.temperature
+              textFormat: Text.PlainText
               color: root.foregroundColor
               font.family: root.fontFamily
               font.pixelSize: Style.space(32)
@@ -181,6 +184,7 @@ Item {
                 id: feelsText
                 anchors.centerIn: parent
                 text: "RealFeel " + root.feelsLike
+                textFormat: Text.PlainText
                 color: Qt.darker(root.foregroundColor, 1.4)
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
@@ -191,6 +195,7 @@ Item {
 
           Text {
             text: root.condition + " • Real-Time Satellite Doppler Synchronized"
+            textFormat: Text.PlainText
             color: Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.bodySmall
@@ -240,6 +245,7 @@ Item {
             }
             Text {
               text: root.humidity + " (Optimal Range)"
+              textFormat: Text.PlainText
               color: root.foregroundColor
               font.family: root.fontFamily
               font.pixelSize: Style.font.bodySmall
@@ -280,6 +286,7 @@ Item {
             }
             Text {
               text: root.wind + " (Breeze)"
+              textFormat: Text.PlainText
               color: root.foregroundColor
               font.family: root.fontFamily
               font.pixelSize: Style.font.bodySmall
@@ -320,6 +327,7 @@ Item {
             }
             Text {
               text: root.feelsLike + " (Warm Weather)"
+              textFormat: Text.PlainText
               color: root.foregroundColor
               font.family: root.fontFamily
               font.pixelSize: Style.font.bodySmall

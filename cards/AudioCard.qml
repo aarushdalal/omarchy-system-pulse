@@ -111,6 +111,13 @@ Item {
   Process {
     id: volumeSinkProc
     command: ["omarchy-audio-output-sink"]
+    clearEnvironment: true
+    environment: ({
+      "PATH": (Quickshell.env("HOME") ? (Quickshell.env("HOME") + "/.local/share/omarchy/bin:") : "") + "/usr/bin:/bin",
+      "LC_ALL": "C",
+      "HOME": Quickshell.env("HOME") || "",
+      "XDG_RUNTIME_DIR": Quickshell.env("XDG_RUNTIME_DIR") || ""
+    })
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: root.volumeSinkName = String(text).trim()
@@ -358,6 +365,7 @@ Item {
 
             Text {
               text: root.identity
+              textFormat: Text.PlainText
               color: Qt.darker(root.foregroundColor, 1.6)
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption - 1
@@ -367,6 +375,7 @@ Item {
           // Song Title
           Text {
             text: root.title
+            textFormat: Text.PlainText
             color: root.foregroundColor
             font.family: root.fontFamily
             font.pixelSize: Style.font.bodyLarge || Style.space(16)
@@ -378,6 +387,7 @@ Item {
           // Artist & Album
           Text {
             text: root.artist + (root.album ? " • " + root.album : "")
+            textFormat: Text.PlainText
             color: Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption

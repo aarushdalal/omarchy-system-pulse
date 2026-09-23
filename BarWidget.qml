@@ -349,6 +349,7 @@ BarWidget {
           text: (root.isPlaying || audioViz.hasAudio)
             ? (root.trackTitle ? (root.trackTitle.length > 18 ? root.trackTitle.substring(0, 16) + "…" : root.trackTitle) : "Playing")
             : "System Plus"
+          textFormat: Text.PlainText
           color: (root.isPlaying || audioViz.hasAudio) ? (root.bar ? root.bar.barForeground : Color.bar.text) : Qt.darker(root.bar ? root.bar.barForeground : Color.bar.text, 1.6)
           font.family: root.bar ? root.bar.fontFamily : Style.font.family
           font.pixelSize: Style.font.caption

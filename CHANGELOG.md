@@ -5,6 +5,17 @@ All notable changes to `omarchy-system-pulse` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-09-22
+
+### Security
+- Hardened `services/weather-fetcher.sh` with a strict byte limit (2048 bytes) enforced at the network ingestion boundary before buffering, terminating oversized streams via SIGPIPE to prevent memory exhaustion.
+- Replaced manual JSON string interpolation in `services/weather-fetcher.sh` with robust RFC 8259 serialization via `jq`, ensuring safe handling of quotes, backslashes, newlines, control characters, and Unicode.
+- Eliminated vulnerable `echo | xargs` calls in `services/weather-fetcher.sh` to prevent script crashes on unmatched quotes and backslashes.
+- Secured weather cache file writes using unpredictable `mktemp` temporary files with `0600` permissions and atomic replacement.
+- Enforced `textFormat: Text.PlainText` across all weather-derived text sinks in `cards/WeatherCard.qml` to prevent rich-text and markup injection.
+- Added defense-in-depth `textFormat: Text.PlainText` and environment isolation for media sinks in `cards/AudioCard.qml` and `BarWidget.qml`.
+- Added comprehensive end-to-end security regression test suite in `tests/test_weather_security.py`.
+
 ## [1.0.2] - 2026-09-13
 
 ### Added
