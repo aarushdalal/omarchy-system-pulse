@@ -148,7 +148,7 @@ flowchart LR
   humid=$(echo "$humid" | xargs)
   wind=$(echo "$wind" | xargs)
   ```
-  `xargs` without `-0` parses single quotes (`'`), double quotes (`"`), and backslashes (`\`) as shell command-line quote delimiters. If a location or condition contains an unclosed quote (such as `"Faridabad` or `City's End`), `xargs` throws:
+  `xargs` without `-0` parses single quotes (`'`), double quotes (`"`), and backslashes (`\`) as shell command-line quote delimiters. If a location or condition contains an unclosed quote (such as `"CityName` or `City's End`), `xargs` throws:
   `xargs: unmatched double quote; by default quotes are special to xargs unless you use the -0 option`
   and exits with code 1. Because `weather-fetcher.sh` operates under `set -e`, the script immediately crashed on any response containing quotes. Furthermore, `echo "$var"` without flags treats `-n`, `-e`, or `-E` as echo options rather than text.
 - **Remediation**:
@@ -453,7 +453,7 @@ flowchart TD
 
 ## 6. Automated Regression Test Suite
 
-The test suite in [`tests/test_weather_security.py`](file:///home/daemon0/Work/omarchy-public-release/omarchy-system-pulse/tests/test_weather_security.py) boots an ephemeral multi-threaded Python HTTP server on an OS-assigned dynamic port, invokes `services/weather-fetcher.sh` with isolated `XDG_CACHE_HOME` environments, and verifies all security boundaries.
+The test suite in [`tests/test_weather_security.py`](../tests/test_weather_security.py) boots an ephemeral multi-threaded Python HTTP server on an OS-assigned dynamic port, invokes `services/weather-fetcher.sh` with isolated `XDG_CACHE_HOME` environments, and verifies all security boundaries.
 
 ### Automated Execution Log
 ```

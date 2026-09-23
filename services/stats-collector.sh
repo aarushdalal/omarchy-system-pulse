@@ -85,8 +85,9 @@ done
 read -r r_tot r_used r_avail r_pct < <(df -BG / 2>/dev/null | awk "NR==2 {print \$2,\$3,\$4,\$5}" | tr -d "G%")
 
 user_part=""
-if [ -d "/run/media/daemon0/volume 2" ]; then
-  read -r u_tot u_used u_avail u_pct < <(df -BG "/run/media/daemon0/volume 2" 2>/dev/null | awk "NR==2 {print \$2,\$3,\$4,\$5}" | tr -d "G%")
+user_media_path=$(find /run/media -maxdepth 2 -name "volume 2" 2>/dev/null | head -n 1 || echo "")
+if [ -n "$user_media_path" ] && [ -d "$user_media_path" ]; then
+  read -r u_tot u_used u_avail u_pct < <(df -BG "$user_media_path" 2>/dev/null | awk "NR==2 {print \$2,\$3,\$4,\$5}" | tr -d "G%")
   user_part="\"volume2\":{\"name\":\"Volume 2\",\"total\":${u_tot:-0},\"used\":${u_used:-0},\"free\":${u_avail:-0},\"pct\":${u_pct:-0}},"
 elif [ -d "/mnt/c" ]; then
   read -r u_tot u_used u_avail u_pct < <(df -BG "/mnt/c" 2>/dev/null | awk "NR==2 {print \$2,\$3,\$4,\$5}" | tr -d "G%")

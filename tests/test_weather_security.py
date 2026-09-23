@@ -120,16 +120,16 @@ def run_fetcher(url, env_overrides=None, args=None):
 
 def test_normal_response(server, tmp_dir):
     print("[TEST] 1. Normal valid weather response...")
-    payload = b"Faridabad, IN|+32\xc2\xb0C|Clear|45%|12km/h\n"
+    payload = b"London, GB|+15\xc2\xb0C|Clear|45%|12km/h\n"
     server.set_mode("custom", payload)
 
     res = run_fetcher(server.get_url(), env_overrides={"XDG_CACHE_HOME": str(tmp_dir)})
     assert res.returncode == 0, f"Expected exit 0, got {res.returncode}: {res.stderr}"
 
     data = json.loads(res.stdout.strip())
-    assert data["location"] == "Faridabad, India", f"Unexpected location: {data['location']}"
-    assert data["temp"] == "32°C", f"Unexpected temp: {data['temp']}"
-    assert data["feels_like"] == "35°C", f"Unexpected feels_like: {data['feels_like']}"
+    assert data["location"] == "London, United Kingdom", f"Unexpected location: {data['location']}"
+    assert data["temp"] == "15°C", f"Unexpected temp: {data['temp']}"
+    assert data["feels_like"] == "18°C", f"Unexpected feels_like: {data['feels_like']}"
     assert data["condition"] == "Clear", f"Unexpected condition: {data['condition']}"
     assert data["humidity"] == "45%", f"Unexpected humidity: {data['humidity']}"
     assert data["wind"] == "12km/h", f"Unexpected wind: {data['wind']}"
@@ -172,14 +172,14 @@ def test_oversized_response(server, tmp_dir):
 
 def test_quotes(server, tmp_dir):
     print("[TEST] 3. Weather fields containing quotes & unclosed quotes...")
-    payload = b'"Faridabad", US|+20\xc2\xb0C|"Sunny"|50%|10km/h\n'
+    payload = b'"Seattle", US|+20\xc2\xb0C|"Sunny"|50%|10km/h\n'
     server.set_mode("custom", payload)
 
     res = run_fetcher(server.get_url(), env_overrides={"XDG_CACHE_HOME": str(tmp_dir)})
     assert res.returncode == 0, f"Failed on quotes input: {res.stderr}"
 
     data = json.loads(res.stdout.strip())
-    assert data["location"] == '"Faridabad", United States'
+    assert data["location"] == '"Seattle", United States'
     assert data["condition"] == '"Sunny"'
     print("  [PASS] Quotes correctly serialized without xargs/shell crash.")
 
