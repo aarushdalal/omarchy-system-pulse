@@ -2,6 +2,8 @@
 
 > **Unofficial / Community Plugin**: Formerly Omni Center / System Plus. An independent open-source hardware telemetry and control center for Omarchy.
 
+![System Pulse Compute Dashboard](assets/showcase/system_plus_compute.png)
+
 A unified center-island hardware telemetry, audio control, and quick-action dashboard designed for Omarchy Quickshell and Hyprland — displaying CPU, memory, storage, audio, fan, and weather data directly in the Omarchy top bar center island.
 
 This project was developed through an AI-assisted workflow. The concept, customization, configuration, testing, integration, and final iteration were directed and carried out by me.
@@ -206,14 +208,43 @@ omarchy plugin remove daemon0.system-pulse --yes
 
 ---
 
-## Showcase
+## Screenshots
 
-![Compute telemetry](assets/showcase/system_plus_compute.png)
-![Audio control](assets/showcase/system_plus_audio.png)
-![System deck](assets/showcase/system_plus_deck.png)
-![Fan telemetry](assets/showcase/system_plus_fan.png)
-![Storage metrics](assets/showcase/system_plus_storage.png)
-![Weather widget](assets/showcase/system_plus_weather.png)
+### Compute & Power Matrix (Main Interface)
+
+![Compute & Power Matrix](assets/showcase/system_plus_compute.png)
+
+Real-time telemetry overview showing aggregate and per-core CPU load, AMD Ryzen 7 PRO 5850U clock frequency, integrated Radeon GPU 3D engine utilization and thermals, memory/ZRAM allocation, hotspot temperatures, and 20-point live CPU activity history.
+
+### Audio Studio & Low-Latency Visualizer
+
+![Audio Control](assets/showcase/system_plus_audio.png)
+
+Interactive MPRIS media player controls, album artwork display, volume adjustments, hardware sink switching, and low-latency audio spectrum visualizer.
+
+### Storage Health & Volume Matrix
+
+![Storage Metrics](assets/showcase/system_plus_storage.png)
+
+Live capacity and filesystem health monitoring across root and mounted partitions, tracking disk space and usage trends.
+
+### Cooling & Hardware Fan Curve
+
+![Fan Telemetry](assets/showcase/system_plus_fan.png)
+
+Cooling fan telemetry with real-time tachometer RPM display, interactive thermal curve visualization, and quick-switch presets (Silent, Balanced, Turbo, Max).
+
+### System Deck & Quick Controls
+
+![System Deck](assets/showcase/system_plus_deck.png)
+
+Quick-access shortcuts for volume, display brightness, utility toggles, and monthly calendar integration.
+
+### Weather & Environmental Telemetry
+
+![Weather Widget](assets/showcase/system_plus_weather.png)
+
+Local weather telemetry including current conditions, temperature, feels-like readings, humidity, and wind velocity.
 
 ---
 

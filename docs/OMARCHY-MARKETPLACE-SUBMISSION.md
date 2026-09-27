@@ -38,6 +38,21 @@ System, hardware-monitoring, audio-visualizer, fan-control, wayland, quickshell,
 utility, hardware-control
 ```
 
+### **Screenshot URL** (Main Listing Visual)
+```text
+https://raw.githubusercontent.com/aarushdalal/omarchy-system-pulse/main/assets/showcase/system_plus_compute.png
+```
+
+### **Gallery / Additional Screenshots**
+```text
+- Compute & Power Matrix: https://raw.githubusercontent.com/aarushdalal/omarchy-system-pulse/main/assets/showcase/system_plus_compute.png
+- Audio Studio & Visualizer: https://raw.githubusercontent.com/aarushdalal/omarchy-system-pulse/main/assets/showcase/system_plus_audio.png
+- Storage Health & Volumes: https://raw.githubusercontent.com/aarushdalal/omarchy-system-pulse/main/assets/showcase/system_plus_storage.png
+- Hardware Fan Curve & Thermals: https://raw.githubusercontent.com/aarushdalal/omarchy-system-pulse/main/assets/showcase/system_plus_fan.png
+- System Deck & Controls: https://raw.githubusercontent.com/aarushdalal/omarchy-system-pulse/main/assets/showcase/system_plus_deck.png
+- Weather & Environmental Telemetry: https://raw.githubusercontent.com/aarushdalal/omarchy-system-pulse/main/assets/showcase/system_plus_weather.png
+```
+
 ---
 
 ### **Maintainer notes** (Copy & Paste Text)
