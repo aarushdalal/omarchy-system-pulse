@@ -465,7 +465,7 @@ BarWidget {
     }
   }
 
-  SystemPlusDashboard {
+  SystemPulseDashboard {
     id: dashboard
     anchorItem: islandSurface
     bar: root.bar

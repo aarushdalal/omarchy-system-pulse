@@ -257,6 +257,12 @@ Item {
   }
 
   readonly property string title: {
+    if (activePlayer && activePlayer.trackTitle && activePlayer.trackTitle.trim() !== "") {
+      var lowMpris = activePlayer.trackTitle.trim().toLowerCase()
+      if (lowMpris !== "youtube" && lowMpris !== "web audio" && lowMpris !== "brave" && lowMpris !== "chrome") {
+        return activePlayer.trackTitle
+      }
+    }
     if (isBrowserPlayer) {
       if (cachedBrowserMediaTitle !== "") return cachedBrowserMediaTitle
       if (activePlayer && activePlayer.trackTitle) return activePlayer.trackTitle
@@ -268,9 +274,11 @@ Item {
   }
 
   readonly property string artist: {
+    if (activePlayer && activePlayer.trackArtist && activePlayer.trackArtist.trim() !== "") {
+      return activePlayer.trackArtist
+    }
     if (isBrowserPlayer) {
       if (cachedBrowserService !== "") return cachedBrowserService
-      if (activePlayer && activePlayer.trackArtist) return activePlayer.trackArtist
       return "Browser"
     }
     if (activePlayer && activePlayer.trackArtist) return activePlayer.trackArtist
@@ -278,22 +286,23 @@ Item {
   }
 
   readonly property string album: {
-    if (isBrowserPlayer) return ""
     return (activePlayer && activePlayer.trackAlbum) ? activePlayer.trackAlbum : ""
   }
 
   readonly property string artUrl: {
-    if (!activePlayer || !activePlayer.trackArtUrl) return ""
-    if (isBrowserPlayer) {
-      var mprisT = String(activePlayer.trackTitle || "").toLowerCase()
-      var recT = String(title).toLowerCase()
-      // Guard against showing stale thumbnails of older tabs
-      if (mprisT === recT || (recT !== "" && mprisT.indexOf(recT.substring(0, 10)) !== -1)) {
-        return activePlayer.trackArtUrl
+    if (!activePlayer) return ""
+    if (activePlayer.trackArtUrl) return activePlayer.trackArtUrl
+    if (activePlayer.metadata) {
+      if (activePlayer.metadata["mpris:artUrl"]) return String(activePlayer.metadata["mpris:artUrl"])
+      var xUrl = String(activePlayer.metadata["xesam:url"] || "")
+      if (xUrl.indexOf("youtube.com/watch") !== -1 || xUrl.indexOf("youtu.be/") !== -1) {
+        var ytMatch = xUrl.match(/(?:v=|\/)([\w-]{11})/)
+        if (ytMatch && ytMatch[1]) {
+          return "https://img.youtube.com/vi/" + ytMatch[1] + "/hqdefault.jpg"
+        }
       }
-      return ""
     }
-    return activePlayer.trackArtUrl
+    return ""
   }
 
   readonly property string identity: {

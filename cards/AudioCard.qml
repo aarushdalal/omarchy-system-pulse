@@ -45,7 +45,23 @@ Item {
   readonly property string title: (root.mediaService && root.mediaService.title) ? root.mediaService.title : (activePlayer && activePlayer.trackTitle ? activePlayer.trackTitle : "No Media Playing")
   readonly property string artist: (root.mediaService && root.mediaService.artist) ? root.mediaService.artist : (activePlayer && activePlayer.trackArtist ? activePlayer.trackArtist : "Ready")
   readonly property string album: (root.mediaService && root.mediaService.album) ? root.mediaService.album : (activePlayer && activePlayer.trackAlbum ? activePlayer.trackAlbum : "")
-  readonly property string artUrl: (root.mediaService && root.mediaService.artUrl) ? root.mediaService.artUrl : (activePlayer && activePlayer.trackArtUrl ? activePlayer.trackArtUrl : "")
+  readonly property string artUrl: {
+    if (root.mediaService && root.mediaService.artUrl) return root.mediaService.artUrl
+    if (activePlayer) {
+      if (activePlayer.trackArtUrl) return activePlayer.trackArtUrl
+      if (activePlayer.metadata) {
+        if (activePlayer.metadata["mpris:artUrl"]) return String(activePlayer.metadata["mpris:artUrl"])
+        var xUrl = String(activePlayer.metadata["xesam:url"] || "")
+        if (xUrl.indexOf("youtube.com/watch") !== -1 || xUrl.indexOf("youtu.be/") !== -1) {
+          var ytMatch = xUrl.match(/(?:v=|\/)([\w-]{11})/)
+          if (ytMatch && ytMatch[1]) {
+            return "https://img.youtube.com/vi/" + ytMatch[1] + "/hqdefault.jpg"
+          }
+        }
+      }
+    }
+    return ""
+  }
   readonly property string identity: (root.mediaService && root.mediaService.identity) ? root.mediaService.identity : (activePlayer ? (activePlayer.identity || activePlayer.desktopEntry || "Media Player") : "Local Audio")
 
   readonly property real rawLength: {
