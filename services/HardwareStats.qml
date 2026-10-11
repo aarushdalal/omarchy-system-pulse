@@ -9,7 +9,7 @@ Item {
 
   property int cpuComputePercent: 0
   property int cpuBusyPercent: 0
-  property string cpuFreqGhz: "3.5"
+  property string cpuFreqGhz: "—"
   property int cpuTemp: 0
 
   property int gpuPercent: 0
@@ -29,9 +29,9 @@ Item {
   property int swapPercent: 0
 
   property int nvmeTemp: 0
-  property var rootDisk: ({ name: "System Root (/)", total: 187, used: 60, free: 127, pct: 32 })
+  property var rootDisk: ({ name: "System Root (/)", total: 0, used: 0, free: 0, pct: 0 })
   property var volume2Disk: null
-  property string smartStatus: "Healthy"
+  property string smartStatus: "Unknown"
 
   property int batteryPercent: 100
   property string batteryStatus: "AC"
@@ -39,8 +39,8 @@ Item {
   property bool btopInstalled: true
 
   // 20-Point History Buffers for Live Waveform Graphs
-  property var cpuHistory: [10, 15, 12, 18, 25, 30, 28, 35, 40, 45, 50, 48, 52, 55, 50, 42, 38, 30, 25, 20]
-  property var gpuHistory: [5, 8, 4, 12, 15, 10, 18, 22, 15, 12, 8, 14, 20, 18, 12, 10, 8, 6, 4, 3]
+  property var cpuHistory: Array(20).fill(0)
+  property var gpuHistory: Array(20).fill(0)
 
   // Internal state for CPU deltas
   property real lastCpuTotal: 0
@@ -65,7 +65,7 @@ Item {
   Timer {
     id: pollTimer
     interval: root.active ? 1000 : 5000
-    running: true
+    running: root.active
     repeat: true
     triggeredOnStart: true
     onTriggered: root.refresh()
@@ -156,11 +156,11 @@ Item {
             root.nvmeTemp = Number(data.storage.nvme_temp) || 0
             if (data.storage.root) root.rootDisk = data.storage.root
             root.volume2Disk = data.storage.volume2 || null
-            root.smartStatus = data.storage.smart || "Healthy"
+            root.smartStatus = data.storage.smart || "Unknown"
           }
 
           if (data.battery) {
-            root.batteryPercent = Number(data.battery.pct) || 100
+            root.batteryPercent = Math.max(0, Math.min(100, Number(data.battery.pct) || 0))
             root.batteryStatus = String(data.battery.status || "AC")
           }
 

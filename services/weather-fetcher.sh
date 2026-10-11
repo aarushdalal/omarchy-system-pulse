@@ -46,7 +46,7 @@ emit_fallback_and_exit() {
   if [ -f "$CACHE_FILE" ] && [ ! -L "$CACHE_FILE" ]; then
     /usr/bin/cat "$CACHE_FILE" 2>/dev/null || cat "$CACHE_FILE"
   else
-    printf '%s\n' '{"location":"New Delhi, India","temp":"36°C","feels_like":"39°C","condition":"Haze","humidity":"32%","wind":"17km/h","icon":"󰖑"}'
+    printf '%s\n' '{"location":"Unavailable","temp":"—","feels_like":"—","condition":"Unavailable","humidity":"—","wind":"—","icon":"󰖑"}'
   fi
   exit "$exit_code"
 }
@@ -142,16 +142,16 @@ def trim: sub("^[ \t\r\n]+"; "") | sub("[ \t\r\n]+$"; "");
         end
       ) as $icon
     | (
-        ([$temp | scan("-?[0-9]+")] | first // "36") | tonumber
+        ([$temp | scan("-?[0-9]+")] | first // "0") | tonumber
       ) as $raw_num
-    | ($raw_num + 3) as $feels_num
+    | null as $feels_num
     | {
-        location: (if $clean_loc != "" then $clean_loc else "New Delhi, India" end),
-        temp: (if $temp != "" then $temp else "36°C" end),
-        feels_like: "\($feels_num)°C",
+        location: (if $clean_loc != "" then $clean_loc else "Unavailable" end),
+        temp: (if $temp != "" then $temp else "—" end),
+        feels_like: "Unavailable",
         condition: (if $cond != "" then $cond else "Clear" end),
-        humidity: (if $humid != "" then $humid else "32%" end),
-        wind: (if $wind != "" then $wind else "17km/h" end),
+        humidity: (if $humid != "" then $humid else "—" end),
+        wind: (if $wind != "" then $wind else "—" end),
         icon: $icon
       }
   end

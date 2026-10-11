@@ -2,10 +2,11 @@ import QtQuick
 import QtQuick.Layouts
 import qs.Commons
 import qs.Ui
+import "components/polish" as Polish
 import "cards"
 import "services"
 
-PopupCard {
+Polish.RefinedPopupCard {
   id: root
 
   property var mediaService: null

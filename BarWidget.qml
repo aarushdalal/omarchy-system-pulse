@@ -28,8 +28,6 @@ BarWidget {
     repeat: true
     onTriggered: {
       root.currentDate = new Date()
-      syncStateView.reload()
-      focusStateView.reload()
     }
   }
 

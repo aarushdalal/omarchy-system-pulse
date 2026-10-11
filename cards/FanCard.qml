@@ -17,9 +17,9 @@ Item {
     ? root.fanService.curve[root.selectedPointIndex]
     : ({ temp: 62, speed: 50 })
 
-  readonly property int calculatedRpm: root.fanService ? root.fanService.currentRpm : 3480
-  readonly property int calculatedPercent: root.fanService ? root.fanService.currentPercent : 60
-  readonly property int currentTemp: root.hardwareStats ? (root.hardwareStats.cpuTemp || 55) : 55
+  readonly property int calculatedRpm: root.fanService ? root.fanService.currentRpm : 0
+  readonly property int calculatedPercent: root.fanService ? root.fanService.currentPercent : 0
+  readonly property int currentTemp: root.hardwareStats ? (root.hardwareStats.cpuTemp || 0) : 0
 
   implicitWidth: Style.space(540)
   implicitHeight: contentColumn.implicitHeight + Style.space(20)
@@ -93,7 +93,7 @@ Item {
             }
 
             Text {
-              text: "RPM"
+              text: "EST. RPM"
               color: Color.accent
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption
@@ -159,7 +159,7 @@ Item {
             }
 
             Text {
-              text: "Max: 5,800 RPM"
+              text: "Model max: 5,800 RPM"
               color: Qt.darker(root.foregroundColor, 1.6)
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption - 1
@@ -193,7 +193,7 @@ Item {
             }
 
             Text {
-              text: (root.fanService && root.fanService.maxTestMode) ? "MAX ACTIVE" : "MAX TEST"
+              text: (root.fanService && root.fanService.maxTestMode) ? "MODEL ACTIVE" : "PREVIEW MAX"
               color: (root.fanService && root.fanService.maxTestMode) ? "#111111" : root.foregroundColor
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption - 1
@@ -455,7 +455,7 @@ Item {
           spacing: Style.space(6)
 
           Text {
-            text: "Cooling Presets"
+            text: "Curve preview · no hardware control"
             color: root.foregroundColor
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption - 1

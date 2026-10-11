@@ -1,11 +1,11 @@
 {
   "name": "omarchy-system-pulse",
   "id": "daemon0.system-pulse",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Unified system telemetry, audio controls, and hardware management center for Omarchy",
   "author": "Daemon0",
   "license": "MIT",
-  "repository": "https://github.com/YOUR-USERNAME/omarchy-system-pulse",
+  "repository": "https://github.com/aarushdalal/omarchy-system-pulse",
   "entryPoints": {
     "barWidget": "BarWidget.qml"
   },

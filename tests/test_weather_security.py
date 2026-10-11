@@ -129,7 +129,7 @@ def test_normal_response(server, tmp_dir):
     data = json.loads(res.stdout.strip())
     assert data["location"] == "London, United Kingdom", f"Unexpected location: {data['location']}"
     assert data["temp"] == "15°C", f"Unexpected temp: {data['temp']}"
-    assert data["feels_like"] == "18°C", f"Unexpected feels_like: {data['feels_like']}"
+    assert data["feels_like"] == "Unavailable", f"Unexpected feels_like: {data['feels_like']}"
     assert data["condition"] == "Clear", f"Unexpected condition: {data['condition']}"
     assert data["humidity"] == "45%", f"Unexpected humidity: {data['humidity']}"
     assert data["wind"] == "12km/h", f"Unexpected wind: {data['wind']}"

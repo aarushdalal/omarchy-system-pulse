@@ -2,7 +2,7 @@
 
 > **Unofficial / Community Plugin**: Formerly Omni Center / System Plus. An independent open-source hardware telemetry and control center for Omarchy.
 
-![System Pulse Compute Dashboard](assets/showcase/system_plus_compute.png)
+![Sample design preview](assets/showcase/preview.svg)
 
 A unified center-island hardware telemetry, audio control, and quick-action dashboard designed for Omarchy Quickshell and Hyprland — displaying CPU, memory, storage, audio, fan, and weather data directly in the Omarchy top bar center island.
 
@@ -212,37 +212,37 @@ omarchy plugin remove daemon0.system-pulse --yes
 
 ### Compute & Power Matrix (Main Interface)
 
-![Compute & Power Matrix](assets/showcase/system_plus_compute.png)
+![Sample design preview](assets/showcase/preview.svg)
 
 Real-time telemetry overview showing aggregate and per-core CPU load, AMD Ryzen 7 PRO 5850U clock frequency, integrated Radeon GPU 3D engine utilization and thermals, memory/ZRAM allocation, hotspot temperatures, and 20-point live CPU activity history.
 
 ### Audio Studio & Low-Latency Visualizer
 
-![Audio Control](assets/showcase/system_plus_audio.png)
+![Sample design preview](assets/showcase/preview.svg)
 
 Interactive MPRIS media player controls, album artwork display, volume adjustments, hardware sink switching, and low-latency audio spectrum visualizer.
 
 ### Storage Health & Volume Matrix
 
-![Storage Metrics](assets/showcase/system_plus_storage.png)
+![Sample design preview](assets/showcase/preview.svg)
 
 Live capacity and filesystem health monitoring across root and mounted partitions, tracking disk space and usage trends.
 
 ### Cooling & Hardware Fan Curve
 
-![Fan Telemetry](assets/showcase/system_plus_fan.png)
+![Sample design preview](assets/showcase/preview.svg)
 
 Cooling fan telemetry with real-time tachometer RPM display, interactive thermal curve visualization, and quick-switch presets (Silent, Balanced, Turbo, Max).
 
 ### System Deck & Quick Controls
 
-![System Deck](assets/showcase/system_plus_deck.png)
+![Sample design preview](assets/showcase/preview.svg)
 
 Quick-access shortcuts for volume, display brightness, utility toggles, and monthly calendar integration.
 
 ### Weather & Environmental Telemetry
 
-![Weather Widget](assets/showcase/system_plus_weather.png)
+![Sample design preview](assets/showcase/preview.svg)
 
 Local weather telemetry including current conditions, temperature, feels-like readings, humidity, and wind velocity.
 
@@ -265,3 +265,7 @@ Issues and enhancements are welcome!
 - Built for the [Omarchy](https://github.com/basecamp/omarchy) desktop environment.
 - Powered by [Quickshell](https://quickshell.outfoxxed.me/), [Hyprland](https://hyprland.org/), and [PipeWire](https://pipewire.org/).
 - Not an official Omarchy product.
+
+## Refinement and privacy update
+
+Compute · audio · storage · hardware status. Current showcases use sample data; see [release privacy](docs/RELEASE-PRIVACY.md). Existing Git history is preserved.

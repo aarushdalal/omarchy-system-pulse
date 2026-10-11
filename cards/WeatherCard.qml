@@ -11,12 +11,12 @@ Item {
   required property color foregroundColor
   required property string fontFamily
 
-  property string location: "New Delhi, India"
-  property string temperature: "36°C"
-  property string feelsLike: "39°C"
-  property string condition: "Haze"
-  property string humidity: "32%"
-  property string wind: "17 km/h"
+  property string location: "Unavailable"
+  property string temperature: "—"
+  property string feelsLike: "Unavailable"
+  property string condition: "Unavailable"
+  property string humidity: "—"
+  property string wind: "—"
   property string weatherIcon: "󰖑"
 
   function refresh() {
@@ -244,7 +244,7 @@ Item {
               font.pixelSize: Style.font.caption - 1
             }
             Text {
-              text: root.humidity + " (Optimal Range)"
+              text: root.humidity
               textFormat: Text.PlainText
               color: root.foregroundColor
               font.family: root.fontFamily
@@ -285,7 +285,7 @@ Item {
               font.pixelSize: Style.font.caption - 1
             }
             Text {
-              text: root.wind + " (Breeze)"
+              text: root.wind
               textFormat: Text.PlainText
               color: root.foregroundColor
               font.family: root.fontFamily
@@ -326,7 +326,7 @@ Item {
               font.pixelSize: Style.font.caption - 1
             }
             Text {
-              text: root.feelsLike + " (Warm Weather)"
+              text: root.feelsLike
               textFormat: Text.PlainText
               color: root.foregroundColor
               font.family: root.fontFamily
@@ -367,7 +367,7 @@ Item {
               font.pixelSize: Style.font.caption - 1
             }
             Text {
-              text: "UV 1 (Low / Safe Exposure)"
+              text: "Unavailable"
               color: root.foregroundColor
               font.family: root.fontFamily
               font.pixelSize: Style.font.bodySmall

@@ -80,7 +80,7 @@ Item {
     return 50
   }
 
-  // Live Fan RPM
+  // Model estimate: no physical RPM or PWM control is provided.
   readonly property int currentRpm: Math.round((currentPercent / 100.0) * root.maxRpm)
 
   // Acoustic noise estimate in dBA

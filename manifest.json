@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "daemon0.system-pulse",
   "name": "System Pulse",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Daemon0",
   "description": "Unified system telemetry, audio controls, and hardware management center for Omarchy",
   "kinds": [
