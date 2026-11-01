@@ -1,7 +1,9 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.Commons
+import qs.Commons as OmarchyPalette
 import qs.Ui
+import "../services/StorageState.js" as StorageState
 
 Item {
   id: root
@@ -10,8 +12,11 @@ Item {
   required property color foregroundColor
   required property string fontFamily
 
-  readonly property var rootDisk: root.hardwareStats ? root.hardwareStats.rootDisk : ({ name: "System Root (/)", total: 187, used: 60, free: 127, pct: 32 })
-  readonly property var volume2Disk: (root.hardwareStats && root.hardwareStats.volume2Disk) ? root.hardwareStats.volume2Disk : null
+  readonly property var storageView: root.hardwareStats && root.hardwareStats.storageState
+      ? root.hardwareStats.storageState : StorageState.snapshot(null, 0, Date.now(), 5000, "", false)
+  readonly property var rootDisk: storageView.root
+  readonly property var volume2Disk: storageView.volume2
+  readonly property bool previousSample: storageView.state === "stale" || storageView.state === "error"
 
   implicitWidth: Style.space(540)
   implicitHeight: contentColumn.implicitHeight + Style.space(20)
@@ -24,7 +29,7 @@ Item {
     anchors.margins: Style.space(12)
     spacing: Style.space(10)
 
-    // Header Row with Title and NVMe Health Badge
+    // Header reports evidence availability, never an inferred health grade
     RowLayout {
       width: parent.width
 
@@ -32,13 +37,13 @@ Item {
         spacing: Style.space(8)
         Text {
           text: "󰋊"
-          color: Color.accent
+          color: OmarchyPalette.Color.accent
           font.family: root.fontFamily
           font.pixelSize: Style.font.title
           anchors.verticalCenter: parent.verticalCenter
         }
         Text {
-          text: "Storage & NVMe Health"
+          text: "Storage Telemetry"
           color: root.foregroundColor
           font.family: root.fontFamily
           font.pixelSize: Style.font.title
@@ -54,13 +59,14 @@ Item {
         height: Style.space(24)
         width: healthText.implicitWidth + Style.space(16)
         radius: Style.cornerRadius
-        color: Style.hoverFillFor(Color.accent, Color.accent)
+        color: Style.hoverFillFor(OmarchyPalette.Color.accent, OmarchyPalette.Color.accent)
 
         Text {
           id: healthText
           anchors.centerIn: parent
-          text: "● " + (root.hardwareStats ? root.hardwareStats.smartStatus : "Healthy") + " (Grade A+)"
-          color: Color.accent
+          text: "● " + root.storageView.title
+          textFormat: Text.PlainText
+          color: root.storageView.state === "error" ? OmarchyPalette.Color.urgent : root.foregroundColor
           font.family: root.fontFamily
           font.pixelSize: Style.font.caption
           font.bold: true
@@ -68,12 +74,22 @@ Item {
       }
     }
 
+    Text {
+      width: parent.width
+      text: root.storageView.detail
+      textFormat: Text.PlainText
+      wrapMode: Text.WordWrap
+      color: root.foregroundColor
+      font.family: root.fontFamily
+      font.pixelSize: Style.font.caption
+    }
+
     // Drive 1: NVMe System Root (/)
     Rectangle {
       width: parent.width
       height: rootCol.implicitHeight + Style.space(16)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
       Column {
         id: rootCol
@@ -90,7 +106,7 @@ Item {
             spacing: Style.space(6)
             Text {
               text: "󰋊"
-              color: Color.accent
+              color: OmarchyPalette.Color.accent
               font.family: root.fontFamily
               font.pixelSize: Style.font.body
               anchors.verticalCenter: parent.verticalCenter
@@ -108,8 +124,9 @@ Item {
           Item { Layout.fillWidth: true }
 
           Text {
-            text: (root.rootDisk ? root.rootDisk.used : 60) + " GB / " + (root.rootDisk ? root.rootDisk.total : 187) + " GB (" + (root.rootDisk ? root.rootDisk.pct : 32) + "%)"
-            color: (root.rootDisk && root.rootDisk.pct > 85) ? Color.urgent : Color.accent
+            text: StorageState.capacityText(root.rootDisk) + (root.previousSample && root.rootDisk ? " · previous" : "")
+            textFormat: Text.PlainText
+            color: (root.rootDisk && root.rootDisk.pct > 85) ? OmarchyPalette.Color.urgent : OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             font.bold: true
@@ -126,10 +143,10 @@ Item {
           clip: true
 
           Rectangle {
-            width: Math.min(parent.width, Math.max(0, parent.width * ((root.rootDisk ? root.rootDisk.pct : 32) / 100)))
+            width: Math.min(parent.width, Math.max(0, parent.width * ((root.rootDisk ? root.rootDisk.pct : 0) / 100)))
             height: parent.height
             radius: Style.cornerRadius
-            color: (root.rootDisk && root.rootDisk.pct > 85) ? Color.urgent : Color.accent
+            color: (root.rootDisk && root.rootDisk.pct > 85) ? OmarchyPalette.Color.urgent : OmarchyPalette.Color.accent
 
             Behavior on width {
               NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
@@ -140,15 +157,15 @@ Item {
         RowLayout {
           width: parent.width
           Text {
-            text: "Free Space: " + (root.rootDisk ? root.rootDisk.free : 127) + " GB remaining capacity"
+            text: root.rootDisk ? "Free Space: " + root.rootDisk.free + " GiB" : "Free space unavailable"
             color: Qt.darker(root.foregroundColor, 1.4)
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
           }
           Item { Layout.fillWidth: true }
           Text {
-            text: "NVMe Temp: " + (root.hardwareStats ? root.hardwareStats.nvmeTemp : 55) + "°C (Optimal)"
-            color: (root.hardwareStats && root.hardwareStats.nvmeTemp > 70) ? Color.urgent : Qt.darker(root.foregroundColor, 1.4)
+            text: root.storageView.nvmeTemp !== null ? "NVMe Temp: " + root.storageView.nvmeTemp + "°C" : "NVMe Temp: unavailable"
+            color: (root.storageView.nvmeTemp !== null && root.storageView.nvmeTemp > 70) ? OmarchyPalette.Color.urgent : Qt.darker(root.foregroundColor, 1.4)
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
           }
@@ -161,7 +178,7 @@ Item {
       width: parent.width
       height: volCol.implicitHeight + Style.space(16)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
       visible: root.volume2Disk !== null
 
       Column {
@@ -179,13 +196,14 @@ Item {
             spacing: Style.space(6)
             Text {
               text: "󰉉"
-              color: Color.accent
+              color: OmarchyPalette.Color.accent
               font.family: root.fontFamily
               font.pixelSize: Style.font.body
               anchors.verticalCenter: parent.verticalCenter
             }
             Text {
               text: root.volume2Disk ? root.volume2Disk.name : "Secondary Storage Volume"
+              textFormat: Text.PlainText
               color: root.foregroundColor
               font.family: root.fontFamily
               font.pixelSize: Style.font.bodySmall
@@ -197,8 +215,9 @@ Item {
           Item { Layout.fillWidth: true }
 
           Text {
-            text: (root.volume2Disk ? root.volume2Disk.used : 90) + " GB / " + (root.volume2Disk ? root.volume2Disk.total : 128) + " GB (" + (root.volume2Disk ? root.volume2Disk.pct : 71) + "%)"
-            color: (root.volume2Disk && root.volume2Disk.pct > 85) ? Color.urgent : Color.accent
+            text: StorageState.capacityText(root.volume2Disk) + (root.previousSample ? " · previous" : "")
+            textFormat: Text.PlainText
+            color: (root.volume2Disk && root.volume2Disk.pct > 85) ? OmarchyPalette.Color.urgent : OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             font.bold: true
@@ -215,10 +234,10 @@ Item {
           clip: true
 
           Rectangle {
-            width: Math.min(parent.width, Math.max(0, parent.width * ((root.volume2Disk ? root.volume2Disk.pct : 70) / 100)))
+            width: Math.min(parent.width, Math.max(0, parent.width * ((root.volume2Disk ? root.volume2Disk.pct : 0) / 100)))
             height: parent.height
             radius: Style.cornerRadius
-            color: (root.volume2Disk && root.volume2Disk.pct > 85) ? Color.urgent : Color.accent
+            color: (root.volume2Disk && root.volume2Disk.pct > 85) ? OmarchyPalette.Color.urgent : OmarchyPalette.Color.accent
 
             Behavior on width {
               NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
@@ -227,7 +246,7 @@ Item {
         }
 
         Text {
-          text: "Free Space: " + (root.volume2Disk ? root.volume2Disk.free : 38) + " GB remaining capacity"
+          text: root.volume2Disk ? "Free Space: " + root.volume2Disk.free + " GiB" : "Free space unavailable"
           color: Qt.darker(root.foregroundColor, 1.4)
           font.family: root.fontFamily
           font.pixelSize: Style.font.caption
@@ -240,7 +259,7 @@ Item {
       width: parent.width
       height: specsRow.implicitHeight + Style.space(16)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
       RowLayout {
         id: specsRow
@@ -254,12 +273,12 @@ Item {
           width: Style.space(38)
           height: Style.space(38)
           radius: Style.cornerRadius
-          color: Style.selectedFillFor(root.foregroundColor, Color.accent)
+          color: Style.selectedFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
           Text {
             anchors.centerIn: parent
             text: "󰍛"
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.title
           }
@@ -270,7 +289,7 @@ Item {
           spacing: 2
 
           Text {
-            text: "Samsung NVMe 512GB PCIe Gen3 x4"
+            text: "Root filesystem measurements"
             color: root.foregroundColor
             font.family: root.fontFamily
             font.pixelSize: Style.font.bodySmall
@@ -280,7 +299,8 @@ Item {
           }
 
           Text {
-            text: "SMART Health: 100% • 0 Critical Warnings • Trim Active"
+            text: root.storageView.smartText
+            textFormat: Text.PlainText
             color: Qt.darker(root.foregroundColor, 1.4)
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption

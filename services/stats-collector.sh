@@ -71,27 +71,40 @@ if [ "$cpu_temp" -eq 0 ] && [ -f /sys/class/thermal/thermal_zone0/temp ]; then
   cpu_temp=$(( $(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo 0) / 1000 ))
 fi
 
-# NVMe Storage Temp
-nvme_temp=0
+# Storage fields use JSON null when unavailable, never a fabricated zero.
+# hwmon temperature and df capacity are independent of uncollected SMART health.
+nvme_temp=null
 for f in /sys/class/hwmon/hwmon*/temp1_input; do
-  hwdir=$(dirname "$f")
-  if [ -f "$hwdir/name" ] && grep -q "nvme" "$hwdir/name" 2>/dev/null; then
-    nvme_temp=$(( $(cat "$f" 2>/dev/null || echo 0) / 1000 ))
+  hwdir=${f%/*}
+  if [[ -r "$hwdir/name" ]] && IFS= read -r sensor_name < "$hwdir/name" && [[ "$sensor_name" == "nvme" ]]; then
+    if [[ -r "$f" ]] && IFS= read -r raw_temp < "$f" && [[ "$raw_temp" =~ ^-?[0-9]+$ ]]; then
+      magnitude=$((10#${raw_temp#-}))
+      [[ "$raw_temp" == -* ]] && magnitude=$((-magnitude))
+      if (( magnitude >= -40000 && magnitude <= 150000 )); then
+        nvme_temp=$((magnitude / 1000))
+      fi
+    fi
     break
   fi
 done
 
-# Storage capacities
-read -r r_tot r_used r_avail r_pct < <(df -BG / 2>/dev/null | awk "NR==2 {print \$2,\$3,\$4,\$5}" | tr -d "G%")
-
-user_part=""
-user_media_path=$(find /run/media -maxdepth 2 -name "volume 2" 2>/dev/null | head -n 1 || echo "")
-if [ -n "$user_media_path" ] && [ -d "$user_media_path" ]; then
-  read -r u_tot u_used u_avail u_pct < <(df -BG "$user_media_path" 2>/dev/null | awk "NR==2 {print \$2,\$3,\$4,\$5}" | tr -d "G%")
-  user_part="\"volume2\":{\"name\":\"Volume 2\",\"total\":${u_tot:-0},\"used\":${u_used:-0},\"free\":${u_avail:-0},\"pct\":${u_pct:-0}},"
-elif [ -d "/mnt/c" ]; then
-  read -r u_tot u_used u_avail u_pct < <(df -BG "/mnt/c" 2>/dev/null | awk "NR==2 {print \$2,\$3,\$4,\$5}" | tr -d "G%")
-  user_part="\"volume2\":{\"name\":\"Windows C:\",\"total\":${u_tot:-0},\"used\":${u_used:-0},\"free\":${u_avail:-0},\"pct\":${u_pct:-0}},"
+capacity_json() {
+  local path=$1 name=$2 total used available percent
+  if read -r total used available percent < <(df -BG -- "$path" 2>/dev/null | awk 'NR==2 {print $2,$3,$4,$5}' | tr -d 'G%') &&
+      [[ "$total" =~ ^[0-9]+$ && "$used" =~ ^[0-9]+$ && "$available" =~ ^[0-9]+$ && "$percent" =~ ^[0-9]+$ ]]; then
+    # Names are fixed literals from this script, not paths or external metadata.
+    printf '{"name":"%s","total":%s,"used":%s,"free":%s,"pct":%s}' "$name" "$total" "$used" "$available" "$percent"
+  else
+    printf 'null'
+  fi
+}
+root_part=$(capacity_json / 'System Root (/)')
+user_part=null
+user_media_path=$(find /run/media -maxdepth 2 -name "volume 2" 2>/dev/null | head -n 1 || true)
+if [[ -n "$user_media_path" && -d "$user_media_path" ]]; then
+  user_part=$(capacity_json "$user_media_path" 'Volume 2')
+elif [[ -d /mnt/c ]]; then
+  user_part=$(capacity_json /mnt/c 'Windows C:')
 fi
 
 # Battery / AC Power
@@ -106,4 +119,4 @@ if command -v btop &>/dev/null; then
   btop_installed="true"
 fi
 
-echo "{\"btop_installed\":$btop_installed,\"cpu\":{\"total\":$total,\"idle\":$idle,\"iowait\":$iowait,\"compute\":$compute,\"temp\":$cpu_temp,\"freq_mhz\":$avg_freq_mhz},\"gpu\":{\"util\":$gpu_busy,\"vcn\":$vcn_busy,\"vram_used\":$vram_used,\"vram_tot\":$vram_tot,\"gtt_used\":$gtt_used,\"gtt_tot\":$gtt_tot,\"temp\":$gpu_temp,\"power\":$gpu_power},\"ram\":{\"total\":$((mem_total/1024)),\"avail\":$((mem_avail/1024)),\"used\":$(((mem_total-mem_avail)/1024)),\"swap_total\":$((swap_total/1024)),\"swap_used\":$(((swap_total-swap_free)/1024))},\"storage\":{\"nvme_temp\":$nvme_temp,\"root\":{\"name\":\"System Root (/)\",\"total\":${r_tot:-0},\"used\":${r_used:-0},\"free\":${r_avail:-0},\"pct\":${r_pct:-0}},${user_part}\"smart\":\"Unknown\"},\"battery\":{\"pct\":$bat_cap,\"status\":\"$bat_status\"}}"
+echo "{\"btop_installed\":$btop_installed,\"cpu\":{\"total\":$total,\"idle\":$idle,\"iowait\":$iowait,\"compute\":$compute,\"temp\":$cpu_temp,\"freq_mhz\":$avg_freq_mhz},\"gpu\":{\"util\":$gpu_busy,\"vcn\":$vcn_busy,\"vram_used\":$vram_used,\"vram_tot\":$vram_tot,\"gtt_used\":$gtt_used,\"gtt_tot\":$gtt_tot,\"temp\":$gpu_temp,\"power\":$gpu_power},\"ram\":{\"total\":$((mem_total/1024)),\"avail\":$((mem_avail/1024)),\"used\":$(((mem_total-mem_avail)/1024)),\"swap_total\":$((swap_total/1024)),\"swap_used\":$(((swap_total-swap_free)/1024))},\"storage\":{\"nvme_temp\":$nvme_temp,\"root\":$root_part,\"volume2\":$user_part,\"smart\":{\"state\":\"unavailable\",\"reason\":\"not-collected\"}},\"battery\":{\"pct\":$bat_cap,\"status\":\"$bat_status\"}}"

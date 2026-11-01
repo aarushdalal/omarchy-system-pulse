@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1] - 2026-11-01
+
+- Replace unsupported storage grades and hard-coded SMART health, endurance, TRIM, model and link claims with explicit measurement coverage.
+- Keep missing capacity and temperature distinct from measured zero; show loading, available, partial, stale, unsupported, unavailable and collector-error states.
+- Reject malformed output and plausible JSON from failed collector processes; label retained previous values and recover on fresh samples.
+- Add synthetic state, process-error/recovery, capacity and storage-card rendering checks. No privileged SMART probing or new service is introduced.
+
 ## [1.1.0] - 2026-10-11
 
 - Preset-aware dashboard, event-driven focus/sync updates, inactive collector pause, unavailable weather/SMART placeholders and clearly labelled fan curve model.
