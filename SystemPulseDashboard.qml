@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.Commons
+import qs.Commons as OmarchyPalette
 import qs.Ui
 import "components/polish" as Polish
 import "cards"
@@ -13,9 +14,16 @@ Polish.RefinedPopupCard {
   property var visualizerService: null
   property int activeTabIndex: 0 // 0: Storage, 1: Compute, 2: Audio, 3: Deck, 4: Weather, 5: Fan
   property bool anchorHovered: false
+  readonly property bool dashboardMotionEnabled: root.open && !Polish.MotionAdapter.reducedMotion
+  readonly property string dashboardUiRevision: "premium-ui-20261102"
+  onActiveTabIndexChanged: {
+    var bounded = Math.max(0, Math.min(5, activeTabIndex))
+    if (bounded !== activeTabIndex) activeTabIndex = bounded
+    if (pageViewport) pageViewport.contentY = 0
+  }
 
   contentWidth: Style.space(560)
-  contentHeight: Style.space(430)
+  contentHeight: root.cappedContentHeight(Style.space(438))
   borderSpec: Border.none()
   triggerMode: "click"
 
@@ -30,7 +38,7 @@ Polish.RefinedPopupCard {
     running: false
     repeat: false
     onTriggered: {
-      if (root.open && !root.containsMouse && !root.anchorHovered) {
+      if (root.triggerMode === "hover" && root.open && !root.containsMouse && !root.anchorHovered) {
         root.close()
       }
     }
@@ -75,6 +83,7 @@ Polish.RefinedPopupCard {
   readonly property real wheelThreshold: 20
 
   function handleWheel(wheelOrDelta) {
+    if (!root.open) return
     var now = Date.now()
     var dy = 0
     var dx = 0
@@ -123,6 +132,10 @@ Polish.RefinedPopupCard {
     anchors.fill: parent
     acceptedButtons: Qt.NoButton
     onWheel: function(wheel) {
+      if (pageViewport.overflow && Math.abs(wheel.angleDelta.y) > Math.abs(wheel.angleDelta.x)) {
+        wheel.accepted = false
+        return
+      }
       root.handleWheel(wheel)
     }
   }
@@ -132,136 +145,40 @@ Polish.RefinedPopupCard {
     id: mainCanvas
     anchors.fill: parent
 
-    // Top Segmented Tab Switcher with Gliding Pill Indicator
-    Rectangle {
+    Polish.DashboardTabs {
       id: tabSwitcher
-      anchors.left: parent.left
-      anchors.right: parent.right
-      anchors.top: parent.top
-      height: Style.space(40)
-      radius: Style.cornerRadius
-      color: Style.normalFillFor(root.bar ? root.bar.barForeground : Color.foreground, Color.accent)
-
-      readonly property var tabs: [
-        { icon: "󰋊", label: "Storage", index: 0 },
-        { icon: "󰍛", label: "Compute", index: 1 },
-        { icon: "󰝚", label: "Audio", index: 2 },
-        { icon: "󰸗", label: "Deck", index: 3 },
-        { icon: "🌤️", label: "Weather", index: 4 },
-        { icon: "󰈐", label: "Fan", index: 5 }
-      ]
-
-      readonly property real singleTabWidth: (tabSwitcher.width - Style.space(6) - (tabSwitcher.tabs.length - 1) * Style.space(4)) / tabSwitcher.tabs.length
-
-      // Smooth Sliding Active Pill Indicator with subtle Jade underline
-      Rectangle {
-        id: activePill
-        y: Style.space(3)
-        height: tabSwitcher.height - Style.space(6)
-        width: tabSwitcher.singleTabWidth
-        x: Style.space(3) + root.activeTabIndex * (tabSwitcher.singleTabWidth + Style.space(4))
-        radius: Style.cornerRadius - 2
-        color: Style.selectedFillFor(root.bar ? root.bar.barForeground : Color.foreground, Color.accent)
-        border.width: 1
-        border.color: Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.40)
-
-        // Kinetic bottom accent glide bar
-        Rectangle {
-          anchors.bottom: parent.bottom
-          anchors.bottomMargin: Style.space(1)
-          anchors.horizontalCenter: parent.horizontalCenter
-          width: Math.round(parent.width * 0.55)
-          height: 2
-          radius: 1
-          color: Color.accent
-          opacity: 0.95
-        }
-
-        Behavior on x {
-          NumberAnimation { duration: Motion.liquidMoveDuration; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot }
-        }
-      }
-
-      Row {
-        id: tabsRow
-        anchors.fill: parent
-        anchors.margins: Style.space(3)
-        spacing: Style.space(4)
-
-        Repeater {
-          model: tabSwitcher.tabs
-
-          Item {
-            id: tabItem
-            width: tabSwitcher.singleTabWidth
-            height: tabsRow.height
-            readonly property bool isSelected: root.activeTabIndex === modelData.index
-            scale: tabMouse.pressed ? Motion.pressScale : 1.0
-
-            Behavior on scale {
-              NumberAnimation { duration: Motion.micro; easing.type: Motion.easeStandard }
-            }
-
-            Rectangle {
-              anchors.fill: parent
-              radius: Style.cornerRadius - 2
-              color: tabMouse.containsMouse && !tabItem.isSelected
-                ? Style.hoverFillFor(root.bar ? root.bar.barForeground : Color.foreground, Color.accent)
-                : "transparent"
-
-              Behavior on color { ColorAnimation { duration: Motion.micro; easing.type: Motion.easeStandard } }
-
-              Row {
-                anchors.centerIn: parent
-                spacing: Style.space(6)
-
-                Text {
-                  id: iconText
-                  text: modelData.icon
-                  color: tabItem.isSelected ? Color.accent : Qt.darker(root.bar ? root.bar.barForeground : Color.foreground, 1.5)
-                  font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                  font.pixelSize: Style.font.caption + 1
-                  anchors.verticalCenter: parent.verticalCenter
-                  scale: tabItem.isSelected ? (1.0 + 0.15 * Motion.springOvershoot) : (tabMouse.containsMouse ? (1.0 + 0.06 * Motion.springOvershoot) : 1.0)
-
-                  Behavior on scale {
-                    NumberAnimation { duration: Motion.micro; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot }
-                  }
-                  Behavior on color { ColorAnimation { duration: Motion.micro; easing.type: Motion.easeStandard } }
-                }
-
-                Text {
-                  id: labelText
-                  text: modelData.label
-                  color: tabItem.isSelected ? Color.accent : Qt.darker(root.bar ? root.bar.barForeground : Color.foreground, 1.4)
-                  font.family: root.bar ? root.bar.fontFamily : Style.font.family
-                  font.pixelSize: Style.font.bodySmall
-                  font.bold: tabItem.isSelected
-                  anchors.verticalCenter: parent.verticalCenter
-
-                  Behavior on color { ColorAnimation { duration: Motion.micro; easing.type: Motion.easeStandard } }
-                }
-              }
-            }
-
-            MouseArea {
-              id: tabMouse
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: Qt.PointingHandCursor
-              onClicked: root.activeTabIndex = modelData.index
-              onWheel: function(wheel) {
-                root.handleWheel(wheel)
-              }
-            }
-          }
-        }
-      }
+      anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top
+      height: implicitHeight
+      title: "System Pulse"
+      currentIndex: root.activeTabIndex
+      foregroundColor: root.bar ? root.bar.barForeground : OmarchyPalette.Color.foreground
+      fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
+      motionEnabled: root.dashboardMotionEnabled
+      enabled: root.open
+      onSelectionRequested: function(index) { root.activeTabIndex = index }
     }
 
-    // Horizontal Sliding Carousel Stack with Depth Perspective
-    Item {
-      id: carouselStack
+    // Short spatial reveals retain direction without moving several panel widths.
+    Flickable {
+      id: pageViewport
+      objectName: "dashboard-page-viewport"
+      readonly property bool overflow: contentHeight > height + 1
+      activeFocusOnTab: overflow
+      flickableDirection: Flickable.VerticalFlick
+      boundsBehavior: Flickable.StopAtBounds
+      contentWidth: width
+      contentHeight: carouselStack.height
+      Keys.onPressed: function(event) {
+        if (!overflow) return
+        var next = contentY
+        if (event.key === Qt.Key_PageDown) next += height * .8
+        else if (event.key === Qt.Key_PageUp) next -= height * .8
+        else if (event.key === Qt.Key_Home) next = 0
+        else if (event.key === Qt.Key_End) next = contentHeight - height
+        else return
+        contentY = Math.max(0, Math.min(contentHeight - height, next))
+        event.accepted = true
+      }
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: tabSwitcher.bottom
@@ -269,131 +186,136 @@ Polish.RefinedPopupCard {
       anchors.topMargin: Style.space(8)
       clip: true
 
-      // Card 0: Storage
       Item {
+        id: carouselStack
+        width: pageViewport.width
+        readonly property var activePage: [page0, page1, page2, page3, page4, page5][root.activeTabIndex]
+        height: Math.max(pageViewport.height, activePage ? activePage.preferredHeight : 0)
+
+      // Card 0: Storage
+      Polish.DashboardPage {
         width: carouselStack.width
         height: carouselStack.height
-        x: (0 - root.activeTabIndex) * carouselStack.width
-        scale: root.activeTabIndex === 0 ? 1.0 : 0.94
-        opacity: Math.max(0.0, 1.0 - Math.abs(0 - root.activeTabIndex) * 0.8)
-        visible: Math.abs(0 - root.activeTabIndex) <= 1
-
-        Behavior on x { NumberAnimation { duration: Motion.entryDuration; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on scale { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
+        id: page0
+        objectName: "dashboard-page-0"
+        pageIndex: 0
+        selectedIndex: root.activeTabIndex
+        travel: Style.space(Polish.MotionAdapter.dashboardTravel)
+        motionEnabled: root.dashboardMotionEnabled
+        enabled: root.open && selected
         StorageCard {
           anchors.fill: parent
           hardwareStats: hwStats
-          foregroundColor: root.bar ? root.bar.barForeground : Color.foreground
+          foregroundColor: root.bar ? root.bar.barForeground : OmarchyPalette.Color.foreground
           fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
         }
       }
 
       // Card 1: Compute
-      Item {
+      Polish.DashboardPage {
         width: carouselStack.width
         height: carouselStack.height
-        x: (1 - root.activeTabIndex) * carouselStack.width
-        scale: root.activeTabIndex === 1 ? 1.0 : 0.94
-        opacity: Math.max(0.0, 1.0 - Math.abs(1 - root.activeTabIndex) * 0.8)
-        visible: Math.abs(1 - root.activeTabIndex) <= 1
-
-        Behavior on x { NumberAnimation { duration: Motion.entryDuration; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on scale { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
+        id: page1
+        objectName: "dashboard-page-1"
+        pageIndex: 1
+        selectedIndex: root.activeTabIndex
+        travel: Style.space(Polish.MotionAdapter.dashboardTravel)
+        motionEnabled: root.dashboardMotionEnabled
+        enabled: root.open && selected
         ComputeCard {
           anchors.fill: parent
           hardwareStats: hwStats
-          foregroundColor: root.bar ? root.bar.barForeground : Color.foreground
+          foregroundColor: root.bar ? root.bar.barForeground : OmarchyPalette.Color.foreground
           fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
         }
       }
 
       // Card 2: Audio Studio & Hero Poster
-      Item {
+      Polish.DashboardPage {
         width: carouselStack.width
         height: carouselStack.height
-        x: (2 - root.activeTabIndex) * carouselStack.width
-        scale: root.activeTabIndex === 2 ? 1.0 : 0.94
-        opacity: Math.max(0.0, 1.0 - Math.abs(2 - root.activeTabIndex) * 0.8)
-        visible: Math.abs(2 - root.activeTabIndex) <= 1
-
-        Behavior on x { NumberAnimation { duration: Motion.entryDuration; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on scale { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
+        id: page2
+        objectName: "dashboard-page-2"
+        pageIndex: 2
+        selectedIndex: root.activeTabIndex
+        travel: Style.space(Polish.MotionAdapter.dashboardTravel)
+        motionEnabled: root.dashboardMotionEnabled
+        enabled: root.open && selected
         AudioCard {
           anchors.fill: parent
           mediaService: root.mediaService
           visualizerService: root.visualizerService
-          foregroundColor: root.bar ? root.bar.barForeground : Color.foreground
+          foregroundColor: root.bar ? root.bar.barForeground : OmarchyPalette.Color.foreground
           fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
         }
       }
 
       // Card 3: Deck & Calendar
-      Item {
+      Polish.DashboardPage {
         width: carouselStack.width
         height: carouselStack.height
-        x: (3 - root.activeTabIndex) * carouselStack.width
-        scale: root.activeTabIndex === 3 ? 1.0 : 0.94
-        opacity: Math.max(0.0, 1.0 - Math.abs(3 - root.activeTabIndex) * 0.8)
-        visible: Math.abs(3 - root.activeTabIndex) <= 1
-
-        Behavior on x { NumberAnimation { duration: Motion.entryDuration; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on scale { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
+        id: page3
+        objectName: "dashboard-page-3"
+        pageIndex: 3
+        selectedIndex: root.activeTabIndex
+        travel: Style.space(Polish.MotionAdapter.dashboardTravel)
+        motionEnabled: root.dashboardMotionEnabled
+        enabled: root.open && selected
         DeckCard {
           anchors.fill: parent
           bar: root.bar
-          foregroundColor: root.bar ? root.bar.barForeground : Color.foreground
+          foregroundColor: root.bar ? root.bar.barForeground : OmarchyPalette.Color.foreground
           fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
         }
       }
 
       // Card 4: Weather Hub
-      Item {
+      Polish.DashboardPage {
         width: carouselStack.width
         height: carouselStack.height
-        x: (4 - root.activeTabIndex) * carouselStack.width
-        scale: root.activeTabIndex === 4 ? 1.0 : 0.94
-        opacity: Math.max(0.0, 1.0 - Math.abs(4 - root.activeTabIndex) * 0.8)
-        visible: Math.abs(4 - root.activeTabIndex) <= 1
-
-        Behavior on x { NumberAnimation { duration: Motion.entryDuration; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on scale { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
+        id: page4
+        objectName: "dashboard-page-4"
+        pageIndex: 4
+        selectedIndex: root.activeTabIndex
+        travel: Style.space(Polish.MotionAdapter.dashboardTravel)
+        motionEnabled: root.dashboardMotionEnabled
+        enabled: root.open && selected
         WeatherCard {
           anchors.fill: parent
-          foregroundColor: root.bar ? root.bar.barForeground : Color.foreground
+          foregroundColor: root.bar ? root.bar.barForeground : OmarchyPalette.Color.foreground
           fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
         }
       }
 
       // Card 5: Fan Control & Thermal Curve Hub
-      Item {
+      Polish.DashboardPage {
         width: carouselStack.width
         height: carouselStack.height
-        x: (5 - root.activeTabIndex) * carouselStack.width
-        scale: root.activeTabIndex === 5 ? 1.0 : 0.94
-        opacity: Math.max(0.0, 1.0 - Math.abs(5 - root.activeTabIndex) * 0.8)
-        visible: Math.abs(5 - root.activeTabIndex) <= 1
-
-        Behavior on x { NumberAnimation { duration: Motion.entryDuration; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on scale { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeExpressive; easing.overshoot: Motion.springOvershoot } }
-        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
+        id: page5
+        objectName: "dashboard-page-5"
+        pageIndex: 5
+        selectedIndex: root.activeTabIndex
+        travel: Style.space(Polish.MotionAdapter.dashboardTravel)
+        motionEnabled: root.dashboardMotionEnabled
+        enabled: root.open && selected
         FanCard {
           anchors.fill: parent
           hardwareStats: hwStats
           fanService: fanService
-          foregroundColor: root.bar ? root.bar.barForeground : Color.foreground
+          foregroundColor: root.bar ? root.bar.barForeground : OmarchyPalette.Color.foreground
           fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
         }
+      }
+      }
+      Rectangle {
+        parent: pageViewport
+        visible: pageViewport.overflow
+        width: 3
+        height: Math.max(18, pageViewport.height * pageViewport.height / Math.max(1, pageViewport.contentHeight))
+        x: pageViewport.width - width
+        y: (pageViewport.height - height) * pageViewport.contentY / Math.max(1, pageViewport.contentHeight - pageViewport.height)
+        radius: 1.5
+        color: Qt.rgba(OmarchyPalette.Color.foreground.r, OmarchyPalette.Color.foreground.g, OmarchyPalette.Color.foreground.b, .28)
       }
     }
   }

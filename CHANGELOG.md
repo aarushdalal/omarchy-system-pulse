@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0] - 2026-11-02
+
+- Add accessible compact tabs and bounded directional page reveals with reduced-motion/closed-state guards.
+- Add short-screen scrolling and keyboard access; preserve six sections, live collectors and truthful storage states.
+- Use restrained glass and retain click-open dashboards until explicit dismissal. Add real Qt interaction/layout regression checks.
+
 ## [1.1.1] - 2026-11-01
 
 - Replace unsupported storage grades and hard-coded SMART health, endurance, TRIM, model and link claims with explicit measurement coverage.

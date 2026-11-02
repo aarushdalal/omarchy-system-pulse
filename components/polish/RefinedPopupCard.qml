@@ -2,10 +2,12 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import qs.Commons
+import qs.Commons as OmarchyPalette
 import qs.Ui
 
 PopupWindow {
   id: root
+  property real surfaceOpacity: 0.94
 
   required property Item anchorItem
   required property QtObject bar
@@ -14,9 +16,11 @@ PopupWindow {
   property int padding: Style.spacing.popupPadding
   property int contentWidth: Style.space(280)
   property int contentHeight: Style.space(200)
-  property color borderColor: Color.popups.border
+  property color borderColor: OmarchyPalette.Color.popups.border
   property var borderSpec: Border.none()
   property bool open: false
+  readonly property string uiRevision: "premium-ui-20261102"
+  readonly property bool motionEnabled: !MotionAdapter.reducedMotion
   property bool centerOnBar: false
   // "click" — uses HyprlandFocusGrab so clicking outside dismisses the popup.
   // "hover" — passive overlay; the owning widget controls open via hover.
@@ -74,6 +78,13 @@ PopupWindow {
     if (!bar) return
     if (open) bar.requestPopout(coordinatorKey)
     else if (bar.activePopout === coordinatorKey) bar.releasePopout(coordinatorKey)
+  }
+
+  onMotionEnabledChanged: {
+    if (!motionEnabled) {
+      moveXAnimation.complete(); moveYAnimation.complete()
+      scaleXAnimation.complete(); scaleYAnimation.complete(); opacityAnimation.complete()
+    }
   }
 
   // Outside-click dismissal via Hyprland's focus grab. While `active`, input
@@ -152,8 +163,9 @@ PopupWindow {
 
   BorderSurface {
     id: card
+    objectName: "refined-popup-surface"
     anchors.fill: parent
-    color: Theme.surface
+    color: Qt.rgba(OmarchyPalette.Color.background.r, OmarchyPalette.Color.background.g, OmarchyPalette.Color.background.b, root.surfaceOpacity)
     borderSpec: (root.borderSpec && root.borderSpec.type !== "none") ? root.borderSpec : Border.surfaceSpec("popups", "border", Theme.borderSubtle, 1)
     padding: root.padding
     radius: Theme.radiusLarge
@@ -161,8 +173,8 @@ PopupWindow {
     transform: [Translate {
       x: root.open ? 0 : MotionAdapter.entryXOffset
       y: root.open ? 0 : ((root.originData ? root.originData.directionY : 1) * MotionAdapter.entryYOffset)
-      Behavior on x { NumberAnimation { duration: MotionAdapter.duration(root.open); easing.type: MotionAdapter.easeStandard } }
-      Behavior on y { NumberAnimation { duration: MotionAdapter.duration(root.open); easing.type: root.open ? MotionAdapter.easeExpressive : Easing.InQuad; easing.overshoot: MotionAdapter.springOvershoot } }
+      Behavior on x { enabled: root.motionEnabled; NumberAnimation {id: moveXAnimation; duration: MotionAdapter.duration(root.open); easing.type: MotionAdapter.easeStandard } }
+      Behavior on y { enabled: root.motionEnabled; NumberAnimation {id: moveYAnimation; duration: MotionAdapter.duration(root.open); easing.type: root.open ? MotionAdapter.easeExpressive : Easing.InQuad; easing.overshoot: MotionAdapter.springOvershoot } }
     }, Scale {
       id: cardScale
       origin.x: (root.originData && !isNaN(root.originData.originX)) ? Math.round(root.originData.originX * card.width) : Math.round(card.width / 2)
@@ -171,20 +183,37 @@ PopupWindow {
       yScale: root.open ? 1.0 : (MotionAdapter.reducedMotion ? 1.0 : MotionAdapter.entryScaleStart)
 
       Behavior on xScale {
-        NumberAnimation { duration: MotionAdapter.duration(root.open); easing.type: MotionAdapter.easeExpressive; easing.overshoot: MotionAdapter.springOvershoot }
+        enabled: root.motionEnabled
+        NumberAnimation { id: scaleXAnimation; duration: MotionAdapter.duration(root.open); easing.type: MotionAdapter.easeExpressive; easing.overshoot: MotionAdapter.springOvershoot }
       }
       Behavior on yScale {
-        NumberAnimation { duration: MotionAdapter.duration(root.open); easing.type: MotionAdapter.easeExpressive; easing.overshoot: MotionAdapter.springOvershoot }
+        enabled: root.motionEnabled
+        NumberAnimation { id: scaleYAnimation; duration: MotionAdapter.duration(root.open); easing.type: MotionAdapter.easeExpressive; easing.overshoot: MotionAdapter.springOvershoot }
       }
     }]
 
     opacity: root.open ? 1.0 : 0
 
     Behavior on opacity {
+      enabled: root.motionEnabled
       NumberAnimation {
+        id: opacityAnimation
         duration: root.open ? Math.max(60, Math.round(MotionAdapter.entryDuration * 0.6)) : MotionAdapter.micro
         easing.type: MotionAdapter.easeMicro
       }
+    }
+
+    // Quiet inset edge and top seam create depth without another render pass.
+    Rectangle {
+      anchors.fill: parent; anchors.margins: 1
+      radius: Math.max(0, card.radius - 1)
+      color: "transparent"
+      border.width: 1
+      border.color: Qt.rgba(OmarchyPalette.Color.foreground.r, OmarchyPalette.Color.foreground.g, OmarchyPalette.Color.foreground.b, .045)
+    }
+    Rectangle {
+      x: card.radius; y: 1; width: Math.max(0, card.width - card.radius * 2); height: 1
+      color: Qt.rgba(OmarchyPalette.Color.foreground.r, OmarchyPalette.Color.foreground.g, OmarchyPalette.Color.foreground.b, .075)
     }
 
     Item {

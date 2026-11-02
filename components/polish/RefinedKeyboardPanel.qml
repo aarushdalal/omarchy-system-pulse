@@ -37,6 +37,7 @@ import qs.Ui
 // popup if the user clicks a different bar icon).
 PanelWindow {
   id: root
+  property real surfaceOpacity: 0.94
 
   required property Item anchorItem
   required property QtObject bar
@@ -383,7 +384,7 @@ PanelWindow {
     y: root.cardOrigin.y + (root.open || root.popoutSwitching ? 0 : ((root.barPos === "bottom") ? -MotionAdapter.entryYOffset : MotionAdapter.entryYOffset))
     width: root.contentWidth
     height: root.contentHeight
-    color: Theme.surface
+    color: Qt.rgba(OmarchyPalette.Color.background.r, OmarchyPalette.Color.background.g, OmarchyPalette.Color.background.b, root.surfaceOpacity)
     borderSpec: (root.borderSpec && root.borderSpec.type !== "none") ? root.borderSpec : Border.surfaceSpec("popups", "border", Theme.borderSubtle, 1)
     padding: root.padding
     radius: Theme.radiusLarge
@@ -392,19 +393,19 @@ PanelWindow {
     opacity: root.open || root.popoutSwitching ? 1.0 : 0
 
     Behavior on scale {
-      enabled: !root.popoutSwitching && !root.popoutSwitchClosing
+      enabled: !root.popoutSwitching && !root.popoutSwitchClosing && !MotionAdapter.reducedMotion
       NumberAnimation { duration: MotionAdapter.duration(root.open); easing.type: root.open ? MotionAdapter.easeExpressive : Easing.InQuad; easing.overshoot: MotionAdapter.springOvershoot }
     }
     Behavior on x {
-      enabled: !root.popoutSwitching && !root.popoutSwitchClosing
+      enabled: !root.popoutSwitching && !root.popoutSwitchClosing && !MotionAdapter.reducedMotion
       NumberAnimation { duration: MotionAdapter.duration(root.open); easing.type: MotionAdapter.easeStandard }
     }
     Behavior on y {
-      enabled: !root.popoutSwitching && !root.popoutSwitchClosing
+      enabled: !root.popoutSwitching && !root.popoutSwitchClosing && !MotionAdapter.reducedMotion
       NumberAnimation { duration: MotionAdapter.duration(root.open); easing.type: root.open ? MotionAdapter.easeExpressive : Easing.InQuad; easing.overshoot: MotionAdapter.springOvershoot }
     }
     Behavior on opacity {
-      enabled: !root.popoutSwitching && !root.popoutSwitchClosing
+      enabled: !root.popoutSwitching && !root.popoutSwitchClosing && !MotionAdapter.reducedMotion
       NumberAnimation { duration: Math.min(MotionAdapter.duration(root.open), MotionAdapter.standard); easing.type: MotionAdapter.easeMicro }
     }
 

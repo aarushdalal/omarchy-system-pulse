@@ -25,6 +25,14 @@ QtObject {
     readonly property real hoverScale: Core.Motion.hoverScale
     readonly property int liquidMoveDuration: Core.Motion.liquidMoveDuration
 
+    // Repeated dashboard actions stay compact while retaining preset timing and intensity.
+    readonly property int dashboardDuration: reducedMotion ? 1 : Math.min(220, Core.Motion.standard)
+    readonly property int dashboardPillDuration: reducedMotion ? 1 : Math.min(180, Core.Motion.liquidMoveDuration)
+    readonly property int dashboardMicro: reducedMotion ? 1 : Math.min(90, Core.Motion.micro)
+    readonly property real dashboardTravel: reducedMotion ? 0 : 24 * amplitude
+    readonly property real dashboardScale: reducedMotion ? 1 : 1 - .012 * amplitude
+    readonly property real dashboardPressScale: reducedMotion ? 1 : Math.max(.975, Core.Motion.pressScale)
+
     function duration(opening) { return opening ? entryDuration : exitDuration }
     function calculateOrigin(anchor, rect, position) { return Core.Motion.calculateOrigin(anchor, rect, position) }
 }
