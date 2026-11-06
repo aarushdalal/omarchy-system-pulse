@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.Commons
+import qs.Commons as OmarchyPalette
 import qs.Ui
 
 Item {
@@ -37,7 +38,7 @@ Item {
       width: parent.width
       height: Style.space(92)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
       RowLayout {
         anchors.fill: parent
@@ -50,16 +51,16 @@ Item {
           height: Style.space(68)
           radius: Style.cornerRadius
           color: (root.fanService && root.fanService.maxTestMode)
-            ? Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.20)
+            ? Qt.rgba(OmarchyPalette.Color.accent.r, OmarchyPalette.Color.accent.g, OmarchyPalette.Color.accent.b, 0.20)
             : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.06)
 
           border.width: (root.fanService && root.fanService.maxTestMode) ? 1 : 0
-          border.color: Color.accent
+          border.color: OmarchyPalette.Color.accent
 
           Text {
             id: fanIcon
             text: "󰈐"
-            color: (root.calculatedPercent > 0) ? Color.accent : Qt.darker(root.foregroundColor, 2.0)
+            color: (root.calculatedPercent > 0) ? OmarchyPalette.Color.accent : Qt.darker(root.foregroundColor, 2.0)
             font.family: root.fontFamily
             font.pixelSize: Style.font.title + 10
             anchors.centerIn: parent
@@ -94,7 +95,7 @@ Item {
 
             Text {
               text: "EST. RPM"
-              color: Color.accent
+              color: OmarchyPalette.Color.accent
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption
               font.bold: true
@@ -108,16 +109,16 @@ Item {
               width: dutyText.implicitWidth + Style.space(12)
               radius: 4
               color: (root.fanService && root.fanService.maxTestMode)
-                ? Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.25)
-                : Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.12)
+                ? Qt.rgba(OmarchyPalette.Color.accent.r, OmarchyPalette.Color.accent.g, OmarchyPalette.Color.accent.b, 0.25)
+                : Qt.rgba(OmarchyPalette.Color.accent.r, OmarchyPalette.Color.accent.g, OmarchyPalette.Color.accent.b, 0.12)
               border.width: 1
-              border.color: (root.fanService && root.fanService.maxTestMode) ? Color.accent : "transparent"
+              border.color: (root.fanService && root.fanService.maxTestMode) ? OmarchyPalette.Color.accent : "transparent"
               anchors.verticalCenter: parent.verticalCenter
 
               Text {
                 id: dutyText
                 text: root.calculatedPercent + "% PWM"
-                color: Color.accent
+                color: OmarchyPalette.Color.accent
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption - 1
                 font.bold: true
@@ -131,7 +132,7 @@ Item {
             spacing: Style.space(10)
 
             Text {
-              text: "🔥 " + root.currentTemp + "°C Package"
+              text: "󰔏 " + root.currentTemp + "°C Package"
               color: Qt.darker(root.foregroundColor, 1.3)
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption - 1
@@ -159,7 +160,7 @@ Item {
             }
 
             Text {
-              text: "Model max: 5,800 RPM"
+              text: "Max: 5.8k RPM"
               color: Qt.darker(root.foregroundColor, 1.6)
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption - 1
@@ -167,16 +168,16 @@ Item {
           }
         }
 
-        // Hero "⚡ Max RPM Test" Action Button
+        // Hero "Max RPM Test" Action Button
         Rectangle {
           width: Style.space(120)
           height: Style.space(42)
           radius: Style.cornerRadius - 2
           color: (root.fanService && root.fanService.maxTestMode)
-            ? Color.accent
-            : (testMouse.containsMouse ? Style.hoverFillFor(root.foregroundColor, Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08))
+            ? OmarchyPalette.Color.accent
+            : (testMouse.containsMouse ? Style.hoverFillFor(root.foregroundColor, OmarchyPalette.Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08))
           border.width: 1
-          border.color: (root.fanService && root.fanService.maxTestMode) ? Color.accent : Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.3)
+          border.color: (root.fanService && root.fanService.maxTestMode) ? OmarchyPalette.Color.accent : Qt.rgba(OmarchyPalette.Color.accent.r, OmarchyPalette.Color.accent.g, OmarchyPalette.Color.accent.b, 0.3)
 
           Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -185,8 +186,8 @@ Item {
             spacing: Style.space(6)
 
             Text {
-              text: (root.fanService && root.fanService.maxTestMode) ? "󰓅" : "⚡"
-              color: (root.fanService && root.fanService.maxTestMode) ? "#111111" : Color.accent
+              text: (root.fanService && root.fanService.maxTestMode) ? "󰓅" : "󱐋"
+              color: (root.fanService && root.fanService.maxTestMode) ? "#111111" : OmarchyPalette.Color.accent
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption + 1
               anchors.verticalCenter: parent.verticalCenter
@@ -219,7 +220,7 @@ Item {
       width: parent.width
       height: Style.space(155)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
       Column {
         anchors.fill: parent
@@ -247,14 +248,14 @@ Item {
             height: Style.space(20)
             width: profileLabel.implicitWidth + Style.space(12)
             radius: 4
-            color: Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.15)
+            color: Qt.rgba(OmarchyPalette.Color.accent.r, OmarchyPalette.Color.accent.g, OmarchyPalette.Color.accent.b, 0.15)
             border.width: 1
-            border.color: Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.25)
+            border.color: Qt.rgba(OmarchyPalette.Color.accent.r, OmarchyPalette.Color.accent.g, OmarchyPalette.Color.accent.b, 0.25)
 
             Text {
               id: profileLabel
               text: "Profile: " + (root.fanService ? root.fanService.profile.toUpperCase() : "BALANCED")
-              color: Color.accent
+              color: OmarchyPalette.Color.accent
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption - 2
               font.bold: true
@@ -447,7 +448,7 @@ Item {
         Layout.fillWidth: true
         height: Style.space(65)
         radius: Style.cornerRadius
-        color: Style.normalFillFor(root.foregroundColor, Color.accent)
+        color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
         Column {
           anchors.fill: parent
@@ -472,13 +473,13 @@ Item {
               height: Style.space(26)
               radius: 4
               color: (root.fanService && root.fanService.profile === "silent")
-                ? Color.accent
-                : (p1Mouse.containsMouse ? Style.hoverFillFor(root.foregroundColor, Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08))
+                ? OmarchyPalette.Color.accent
+                : (p1Mouse.containsMouse ? Style.hoverFillFor(root.foregroundColor, OmarchyPalette.Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08))
               border.width: 1
-              border.color: (root.fanService && root.fanService.profile === "silent") ? Color.accent : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.12)
+              border.color: (root.fanService && root.fanService.profile === "silent") ? OmarchyPalette.Color.accent : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.12)
 
               Text {
-                text: "🍃 Silent"
+                text: "󰒲 Silent"
                 color: (root.fanService && root.fanService.profile === "silent") ? "#111111" : root.foregroundColor
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption - 2
@@ -500,13 +501,13 @@ Item {
               height: Style.space(26)
               radius: 4
               color: (root.fanService && root.fanService.profile === "balanced")
-                ? Color.accent
-                : (p2Mouse.containsMouse ? Style.hoverFillFor(root.foregroundColor, Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08))
+                ? OmarchyPalette.Color.accent
+                : (p2Mouse.containsMouse ? Style.hoverFillFor(root.foregroundColor, OmarchyPalette.Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08))
               border.width: 1
-              border.color: (root.fanService && root.fanService.profile === "balanced") ? Color.accent : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.12)
+              border.color: (root.fanService && root.fanService.profile === "balanced") ? OmarchyPalette.Color.accent : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.12)
 
               Text {
-                text: "⚖️ Balanced"
+                text: "󰊚 Balanced"
                 color: (root.fanService && root.fanService.profile === "balanced") ? "#111111" : root.foregroundColor
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption - 2
@@ -528,13 +529,13 @@ Item {
               height: Style.space(26)
               radius: 4
               color: (root.fanService && root.fanService.profile === "performance")
-                ? Color.accent
-                : (p3Mouse.containsMouse ? Style.hoverFillFor(root.foregroundColor, Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08))
+                ? OmarchyPalette.Color.accent
+                : (p3Mouse.containsMouse ? Style.hoverFillFor(root.foregroundColor, OmarchyPalette.Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08))
               border.width: 1
-              border.color: (root.fanService && root.fanService.profile === "performance") ? Color.accent : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.12)
+              border.color: (root.fanService && root.fanService.profile === "performance") ? OmarchyPalette.Color.accent : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.12)
 
               Text {
-                text: "🚀 Turbo"
+                text: "󰓅 Turbo"
                 color: (root.fanService && root.fanService.profile === "performance") ? "#111111" : root.foregroundColor
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption - 2
@@ -558,7 +559,7 @@ Item {
         width: Style.space(215)
         height: Style.space(65)
         radius: Style.cornerRadius
-        color: Style.normalFillFor(root.foregroundColor, Color.accent)
+        color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
         Column {
           anchors.fill: parent
@@ -580,7 +581,7 @@ Item {
 
             Text {
               text: root.currentPoint.speed + "% Fan"
-              color: Color.accent
+              color: OmarchyPalette.Color.accent
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption - 1
               font.bold: true
@@ -597,7 +598,7 @@ Item {
               width: Style.space(26)
               height: Style.space(24)
               radius: 4
-              color: mMinus.containsMouse ? Style.hoverFillFor(root.foregroundColor, Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08)
+              color: mMinus.containsMouse ? Style.hoverFillFor(root.foregroundColor, OmarchyPalette.Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08)
               border.width: 1
               border.color: Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.12)
 
@@ -629,7 +630,7 @@ Item {
                 width: parent.width * (root.currentPoint.speed / 100.0)
                 height: parent.height
                 radius: 4
-                color: Color.accent
+                color: OmarchyPalette.Color.accent
               }
 
               MouseArea {
@@ -653,7 +654,7 @@ Item {
               width: Style.space(26)
               height: Style.space(24)
               radius: 4
-              color: mPlus.containsMouse ? Style.hoverFillFor(root.foregroundColor, Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08)
+              color: mPlus.containsMouse ? Style.hoverFillFor(root.foregroundColor, OmarchyPalette.Color.accent) : Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.08)
               border.width: 1
               border.color: Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.12)
 

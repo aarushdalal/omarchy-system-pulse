@@ -57,7 +57,9 @@ Item {
       // Health Pill
       Rectangle {
         height: Style.space(24)
+        Layout.preferredHeight: Style.space(24)
         width: healthText.implicitWidth + Style.space(16)
+        Layout.preferredWidth: healthText.implicitWidth + Style.space(16)
         radius: Style.cornerRadius
         color: Style.hoverFillFor(OmarchyPalette.Color.accent, OmarchyPalette.Color.accent)
 
@@ -306,6 +308,65 @@ Item {
             font.pixelSize: Style.font.caption
             elide: Text.ElideRight
             width: parent.width
+          }
+        }
+      }
+    }
+
+    // Measurement coverage keeps unsupported capabilities distinct from actual readings.
+    Rectangle {
+      width: parent.width
+      height: ioCol.implicitHeight + Style.space(16)
+      radius: Style.cornerRadius
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
+
+      Column {
+        id: ioCol
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: Style.space(10)
+        spacing: Style.space(6)
+
+        RowLayout {
+          width: parent.width
+          Row {
+            spacing: Style.space(6)
+            Text { text: "󱐋"; color: OmarchyPalette.Color.accent; font.pixelSize: Style.font.body; anchors.verticalCenter: parent.verticalCenter }
+            Text { text: "Measurement Coverage"; color: root.foregroundColor; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; font.bold: true; anchors.verticalCenter: parent.verticalCenter }
+          }
+          Item { Layout.fillWidth: true }
+          Text { text: root.previousSample ? "Previous sample" : "Collector sources"; color: OmarchyPalette.Color.accent; font.family: root.fontFamily; font.pixelSize: Style.font.caption; font.bold: true }
+        }
+
+        RowLayout {
+          width: parent.width
+          spacing: Style.space(8)
+
+          Rectangle {
+            Layout.fillWidth: true
+            height: Style.space(30)
+            radius: Style.cornerRadius - 3
+            color: Style.selectedFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
+            Row {
+              anchors.centerIn: parent
+              spacing: 6
+              Text { text: "Filesystem capacity"; color: OmarchyPalette.Color.accent; font.pixelSize: 10; font.bold: true }
+              Text { text: root.rootDisk ? "(df)" : "(unavailable)"; color: Qt.darker(root.foregroundColor, 1.4); font.family: root.fontFamily; font.pixelSize: 9 }
+            }
+          }
+
+          Rectangle {
+            Layout.fillWidth: true
+            height: Style.space(30)
+            radius: Style.cornerRadius - 3
+            color: Style.selectedFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
+            Row {
+              anchors.centerIn: parent
+              spacing: 6
+              Text { text: "NVMe thermal"; color: OmarchyPalette.Color.accent; font.pixelSize: 10; font.bold: true }
+              Text { text: root.storageView.nvmeTemp !== null ? "(hwmon)" : "(unavailable)"; color: Qt.darker(root.foregroundColor, 1.4); font.family: root.fontFamily; font.pixelSize: 9 }
+            }
           }
         }
       }

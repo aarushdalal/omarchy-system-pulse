@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import qs.Commons
+import qs.Commons as OmarchyPalette
 import qs.Ui
 
 Item {
@@ -76,7 +77,8 @@ Item {
       Row {
         spacing: Style.space(8)
         Text {
-          text: "🌤️"
+          text: "󰖙"
+          color: OmarchyPalette.Color.accent
           font.family: root.fontFamily
           font.pixelSize: Style.font.title
           anchors.verticalCenter: parent.verticalCenter
@@ -96,9 +98,10 @@ Item {
       // Location Chip
       Rectangle {
         height: Style.space(24)
-        width: locRow.implicitWidth + Style.space(16)
+        width: Math.min(Style.space(160), locRow.implicitWidth + Style.space(16))
         radius: Style.cornerRadius
-        color: Style.hoverFillFor(Color.accent, Color.accent)
+        color: Style.hoverFillFor(OmarchyPalette.Color.accent, OmarchyPalette.Color.accent)
+        clip: true
 
         Row {
           id: locRow
@@ -106,7 +109,9 @@ Item {
           spacing: Style.space(5)
 
           Text {
-            text: "📍"
+            text: "󰍎"
+            color: OmarchyPalette.Color.accent
+            font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             anchors.verticalCenter: parent.verticalCenter
           }
@@ -114,11 +119,14 @@ Item {
           Text {
             text: root.location
             textFormat: Text.PlainText
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             font.bold: true
             anchors.verticalCenter: parent.verticalCenter
+            elide: Text.ElideRight
+            maximumLineCount: 1
+            width: Math.min(Style.space(120), implicitWidth)
           }
         }
       }
@@ -129,7 +137,7 @@ Item {
       width: parent.width
       height: heroRow.implicitHeight + Style.space(20)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
       RowLayout {
         id: heroRow
@@ -144,13 +152,13 @@ Item {
           width: Style.space(68)
           height: Style.space(68)
           radius: Style.cornerRadius
-          color: Style.selectedFillFor(root.foregroundColor, Color.accent)
+          color: Style.selectedFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
           Text {
             anchors.centerIn: parent
             text: root.weatherIcon
             textFormat: Text.PlainText
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.space(38)
           }
@@ -196,7 +204,7 @@ Item {
           Text {
             text: root.condition + " • Real-Time Satellite Doppler Synchronized"
             textFormat: Text.PlainText
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.bodySmall
             font.bold: true
@@ -219,7 +227,7 @@ Item {
         width: (parent.width - Style.space(8)) / 2
         height: Style.space(56)
         radius: Style.cornerRadius
-        color: Style.normalFillFor(root.foregroundColor, Color.accent)
+        color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
         RowLayout {
           anchors.fill: parent
@@ -228,7 +236,7 @@ Item {
 
           Text {
             text: "󰖔"
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.title
             Layout.alignment: Qt.AlignVCenter
@@ -260,7 +268,7 @@ Item {
         width: (parent.width - Style.space(8)) / 2
         height: Style.space(56)
         radius: Style.cornerRadius
-        color: Style.normalFillFor(root.foregroundColor, Color.accent)
+        color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
         RowLayout {
           anchors.fill: parent
@@ -269,7 +277,7 @@ Item {
 
           Text {
             text: "󰖝"
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.title
             Layout.alignment: Qt.AlignVCenter
@@ -301,7 +309,7 @@ Item {
         width: (parent.width - Style.space(8)) / 2
         height: Style.space(56)
         radius: Style.cornerRadius
-        color: Style.normalFillFor(root.foregroundColor, Color.accent)
+        color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
         RowLayout {
           anchors.fill: parent
@@ -310,7 +318,7 @@ Item {
 
           Text {
             text: "󰔏"
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.title
             Layout.alignment: Qt.AlignVCenter
@@ -342,7 +350,7 @@ Item {
         width: (parent.width - Style.space(8)) / 2
         height: Style.space(56)
         radius: Style.cornerRadius
-        color: Style.normalFillFor(root.foregroundColor, Color.accent)
+        color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
         RowLayout {
           anchors.fill: parent
@@ -351,7 +359,7 @@ Item {
 
           Text {
             text: "󰖙"
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.title
             Layout.alignment: Qt.AlignVCenter

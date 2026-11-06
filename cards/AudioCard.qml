@@ -540,6 +540,7 @@ Item {
             foreground: (root.activePlayer && root.activePlayer.shuffle) ? Color.accent : Qt.darker(root.foregroundColor, 1.6)
             fontFamily: root.fontFamily
             enabled: root.activePlayer !== null
+            Layout.alignment: Qt.AlignVCenter
             onClicked: if (root.activePlayer && typeof root.activePlayer.shuffle !== "undefined") root.activePlayer.shuffle = !root.activePlayer.shuffle
           }
 
@@ -549,15 +550,17 @@ Item {
             foreground: root.foregroundColor
             fontFamily: root.fontFamily
             enabled: root.mediaService ? true : (root.activePlayer !== null)
+            Layout.alignment: Qt.AlignVCenter
             onClicked: root.prevTrack()
           }
 
-          // Big Hero Play/Pause
+          // Big Hero Play/Pause (Vertically Centered)
           Rectangle {
             width: Style.space(42)
             height: Style.space(42)
             radius: width / 2
             color: Color.accent
+            Layout.alignment: Qt.AlignVCenter
 
             Text {
               anchors.centerIn: parent
@@ -580,6 +583,7 @@ Item {
             foreground: root.foregroundColor
             fontFamily: root.fontFamily
             enabled: root.mediaService ? true : (root.activePlayer !== null)
+            Layout.alignment: Qt.AlignVCenter
             onClicked: root.nextTrack()
           }
 
@@ -589,6 +593,7 @@ Item {
             foreground: (root.activePlayer && root.activePlayer.loopState && root.activePlayer.loopState !== 0) ? Color.accent : Qt.darker(root.foregroundColor, 1.6)
             fontFamily: root.fontFamily
             enabled: root.activePlayer !== null
+            Layout.alignment: Qt.AlignVCenter
             onClicked: {
               if (root.activePlayer && typeof root.activePlayer.loopState !== "undefined") {
                 root.activePlayer.loopState = (root.activePlayer.loopState + 1) % 3
@@ -666,6 +671,156 @@ Item {
             font.pixelSize: Style.font.caption - 1
             font.bold: true
             Layout.alignment: Qt.AlignVCenter
+          }
+        }
+      }
+    }
+
+    // Audiophile Pipeline & Stream Telemetry Matrix
+    Rectangle {
+      width: parent.width
+      height: Style.space(88)
+      radius: Style.cornerRadius
+      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+
+      ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: Style.space(10)
+        spacing: Style.space(6)
+
+        // Header Row: Engine & Status Pill
+        RowLayout {
+          Layout.fillWidth: true
+
+          Text {
+            text: "󰓃"
+            color: Color.accent
+            font.family: root.fontFamily
+            font.pixelSize: Style.font.bodySmall
+            Layout.alignment: Qt.AlignVCenter
+          }
+
+          Text {
+            text: "AUDIOPHILE DSP PIPELINE"
+            color: root.foregroundColor
+            font.family: root.fontFamily
+            font.pixelSize: Style.font.caption - 1
+            font.bold: true
+            Layout.alignment: Qt.AlignVCenter
+          }
+
+          Item { Layout.fillWidth: true }
+
+          Rectangle {
+            height: Style.space(18)
+            width: dspPillText.implicitWidth + Style.space(12)
+            radius: Style.cornerRadius - 2
+            color: Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.15)
+            border.width: 1
+            border.color: Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.35)
+
+            Text {
+              id: dspPillText
+              anchors.centerIn: parent
+              text: "● DSP ACTIVE (EasyEffects 8)"
+              color: Color.accent
+              font.family: root.fontFamily
+              font.pixelSize: Style.font.caption - 2
+              font.bold: true
+            }
+          }
+        }
+
+        // Telemetry Grid (Preset, Output Sink, Format / Latency)
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: Style.space(8)
+
+          // Preset Pill
+          Rectangle {
+            Layout.fillWidth: true
+            height: Style.space(38)
+            radius: Style.cornerRadius - 2
+            color: Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.05)
+
+            Column {
+              anchors.centerIn: parent
+              spacing: 2
+              Text {
+                text: "EQ PRESET"
+                color: Qt.darker(root.foregroundColor, 1.6)
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption - 3
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+              }
+              Text {
+                text: "Music-Jazz-HighBass"
+                color: root.foregroundColor
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption - 1
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+              }
+            }
+          }
+
+          // Output Sink Pill
+          Rectangle {
+            Layout.fillWidth: true
+            height: Style.space(38)
+            radius: Style.cornerRadius - 2
+            color: Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.05)
+
+            Column {
+              anchors.centerIn: parent
+              spacing: 2
+              Text {
+                text: "ACTIVE SINK"
+                color: Qt.darker(root.foregroundColor, 1.6)
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption - 3
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+              }
+              Text {
+                text: "JBL 770NC / ALC236"
+                color: root.foregroundColor
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption - 1
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+              }
+            }
+          }
+
+          // Stream Spec Pill
+          Rectangle {
+            Layout.fillWidth: true
+            height: Style.space(38)
+            radius: Style.cornerRadius - 2
+            color: Qt.rgba(root.foregroundColor.r, root.foregroundColor.g, root.foregroundColor.b, 0.05)
+
+            Column {
+              anchors.centerIn: parent
+              spacing: 2
+              Text {
+                text: "STREAM BITRATE"
+                color: Qt.darker(root.foregroundColor, 1.6)
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption - 3
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+              }
+              Text {
+                text: "96kHz / 24-bit Lossless"
+                color: Color.accent
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption - 1
+                font.bold: true
+                anchors.horizontalCenter: parent.horizontalCenter
+              }
+            }
           }
         }
       }

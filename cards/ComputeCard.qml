@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import qs.Commons
+import qs.Commons as OmarchyPalette
 import qs.Ui
 
 Item {
@@ -61,22 +62,28 @@ Item {
     RowLayout {
       width: parent.width
 
-      Row {
+      RowLayout {
+        Layout.fillWidth: true
+        Layout.preferredWidth: 0
         spacing: Style.space(8)
+        Layout.alignment: Qt.AlignVCenter
+
         Text {
           text: "󰍛"
-          color: Color.accent
+          color: OmarchyPalette.Color.accent
           font.family: root.fontFamily
           font.pixelSize: Style.font.title
-          anchors.verticalCenter: parent.verticalCenter
+          Layout.alignment: Qt.AlignVCenter
         }
         Text {
-          text: "Compute & Power Matrix"
+          Layout.fillWidth: true
+          text: "Compute & Power"
           color: root.foregroundColor
           font.family: root.fontFamily
           font.pixelSize: Style.font.title
           font.bold: true
-          anchors.verticalCenter: parent.verticalCenter
+          elide: Text.ElideRight
+          Layout.alignment: Qt.AlignVCenter
         }
       }
 
@@ -88,9 +95,9 @@ Item {
         width: monitorBtnRow.implicitWidth + Style.space(16)
         radius: Style.cornerRadius
         color: monitorMouse.containsMouse
-          ? Style.hoverFillFor(Color.accent, Color.accent)
-          : Style.normalFillFor(root.foregroundColor, Color.accent)
-        border.color: (root.hardwareStats && !root.hardwareStats.btopInstalled) ? Color.urgent : Style.hoverFillFor(Color.accent, Color.accent)
+          ? Style.hoverFillFor(OmarchyPalette.Color.accent, OmarchyPalette.Color.accent)
+          : Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
+        border.color: (root.hardwareStats && !root.hardwareStats.btopInstalled) ? OmarchyPalette.Color.urgent : Style.hoverFillFor(OmarchyPalette.Color.accent, OmarchyPalette.Color.accent)
         border.width: 1
 
         Row {
@@ -100,7 +107,7 @@ Item {
 
           Text {
             text: (root.hardwareStats && !root.hardwareStats.btopInstalled) ? "󰅚" : "󰍛"
-            color: (root.hardwareStats && !root.hardwareStats.btopInstalled) ? Color.urgent : Color.accent
+            color: (root.hardwareStats && !root.hardwareStats.btopInstalled) ? OmarchyPalette.Color.urgent : OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             anchors.verticalCenter: parent.verticalCenter
@@ -108,7 +115,7 @@ Item {
 
           Text {
             text: (root.hardwareStats && !root.hardwareStats.btopInstalled) ? "Install btop" : "System Monitor"
-            color: (root.hardwareStats && !root.hardwareStats.btopInstalled) ? Color.urgent : root.foregroundColor
+            color: (root.hardwareStats && !root.hardwareStats.btopInstalled) ? OmarchyPalette.Color.urgent : root.foregroundColor
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             font.bold: true
@@ -133,13 +140,13 @@ Item {
         height: Style.space(24)
         width: turboText.implicitWidth + Style.space(16)
         radius: Style.cornerRadius
-        color: Style.hoverFillFor(Color.accent, Color.accent)
+        color: Style.hoverFillFor(OmarchyPalette.Color.accent, OmarchyPalette.Color.accent)
 
         Text {
           id: turboText
           anchors.centerIn: parent
-          text: "⚡ " + root.cpuFreq + " GHz Turbo • " + root.totalW + "W Total"
-          color: Color.accent
+          text: "󱐋 " + root.cpuFreq + " GHz • " + root.totalW + "W"
+          color: OmarchyPalette.Color.accent
           font.family: root.fontFamily
           font.pixelSize: Style.font.caption
           font.bold: true
@@ -152,8 +159,8 @@ Item {
       width: parent.width
       height: Style.space(34)
       radius: Style.cornerRadius
-      color: Qt.rgba(Color.urgent.r, Color.urgent.g, Color.urgent.b, 0.15)
-      border.color: Color.urgent
+      color: Qt.rgba(OmarchyPalette.Color.urgent.r, OmarchyPalette.Color.urgent.g, OmarchyPalette.Color.urgent.b, 0.15)
+      border.color: OmarchyPalette.Color.urgent
       border.width: 1
       visible: root.hardwareStats && !root.hardwareStats.btopInstalled
 
@@ -164,7 +171,7 @@ Item {
 
         Text {
           text: "󰅚"
-          color: Color.urgent
+          color: OmarchyPalette.Color.urgent
           font.family: root.fontFamily
           font.pixelSize: Style.font.bodySmall
         }
@@ -172,7 +179,7 @@ Item {
         Text {
           Layout.fillWidth: true
           text: "btop is not installed. Please install it by running: sudo pacman -S btop"
-          color: Color.urgent
+          color: OmarchyPalette.Color.urgent
           font.family: root.fontFamily
           font.pixelSize: Style.font.caption
           font.bold: true
@@ -183,7 +190,7 @@ Item {
           height: Style.space(22)
           width: installBtopText.implicitWidth + Style.space(14)
           radius: Style.cornerRadius - 2
-          color: Color.urgent
+          color: OmarchyPalette.Color.urgent
 
           Text {
             id: installBtopText
@@ -213,7 +220,7 @@ Item {
       width: parent.width
       height: cpuCol.implicitHeight + Style.space(16)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
       Column {
         id: cpuCol
@@ -235,7 +242,7 @@ Item {
           Item { Layout.fillWidth: true }
           Text {
             text: root.cpuBusyPct + "% Total Busy (" + root.cpuCompPct + "% Calc)"
-            color: root.cpuBusyPct > 85 ? Color.urgent : Color.accent
+            color: root.cpuBusyPct > 85 ? OmarchyPalette.Color.urgent : OmarchyPalette.Color.accent
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             font.bold: true
@@ -255,7 +262,7 @@ Item {
             width: Math.min(parent.width, Math.max(0, parent.width * (root.cpuBusyPct / 100)))
             height: parent.height
             radius: Style.cornerRadius
-            color: root.cpuBusyPct > 85 ? Color.urgent : Qt.darker(Color.accent, 1.4)
+            color: root.cpuBusyPct > 85 ? OmarchyPalette.Color.urgent : Qt.darker(OmarchyPalette.Color.accent, 1.4)
             Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
           }
 
@@ -264,7 +271,7 @@ Item {
             width: Math.min(parent.width, Math.max(0, parent.width * (root.cpuCompPct / 100)))
             height: parent.height
             radius: Style.cornerRadius
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
           }
         }
@@ -280,7 +287,7 @@ Item {
           Item { Layout.fillWidth: true }
           Text {
             text: "Hotspot: " + root.cpuT + "°C"
-            color: root.cpuT > 85 ? Color.urgent : (root.cpuT > 75 ? "#e5c07b" : Qt.darker(root.foregroundColor, 1.4))
+            color: root.cpuT > 85 ? OmarchyPalette.Color.urgent : (root.cpuT > 75 ? "#e5c07b" : Qt.darker(root.foregroundColor, 1.4))
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             font.bold: root.cpuT > 85
@@ -294,7 +301,7 @@ Item {
       width: parent.width
       height: gpuCol.implicitHeight + Style.space(16)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
       Column {
         id: gpuCol
@@ -316,7 +323,7 @@ Item {
           Item { Layout.fillWidth: true }
           Text {
             text: root.gpuPct + "% 3D Engine • " + root.gpuT + "°C • " + root.gpuW + "W PPT"
-            color: root.gpuT > 85 ? Color.urgent : (root.gpuT > 75 ? "#e5c07b" : Color.accent)
+            color: root.gpuT > 85 ? OmarchyPalette.Color.urgent : (root.gpuT > 75 ? "#e5c07b" : OmarchyPalette.Color.accent)
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
             font.bold: true
@@ -335,7 +342,7 @@ Item {
             width: Math.min(parent.width, Math.max(0, parent.width * (root.gpuVramPct / 100)))
             height: parent.height
             radius: Style.cornerRadius
-            color: root.gpuVramPct > 90 ? Color.urgent : Color.accent
+            color: root.gpuVramPct > 90 ? OmarchyPalette.Color.urgent : OmarchyPalette.Color.accent
             Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
           }
         }
@@ -354,7 +361,7 @@ Item {
       width: parent.width
       height: ramCol.implicitHeight + Style.space(16)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
 
       Column {
         id: ramCol
@@ -393,7 +400,7 @@ Item {
             width: Math.min(parent.width, Math.max(0, parent.width * (root.ramPct / 100)))
             height: parent.height
             radius: Style.cornerRadius
-            color: root.ramPct > 85 ? Color.urgent : Color.accent
+            color: root.ramPct > 85 ? OmarchyPalette.Color.urgent : OmarchyPalette.Color.accent
             Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
           }
         }
@@ -403,16 +410,18 @@ Item {
     // Live 20-Point Sparkline Activity Waveform with Glowing Peak Dots
     Rectangle {
       width: parent.width
-      height: Style.space(50)
+      height: Style.space(62)
       radius: Style.cornerRadius
-      color: Style.normalFillFor(root.foregroundColor, Color.accent)
+      color: Style.normalFillFor(root.foregroundColor, OmarchyPalette.Color.accent)
       clip: true
 
       Row {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.margins: Style.space(6)
+        anchors.leftMargin: Style.space(10)
+        anchors.rightMargin: Style.space(10)
+        anchors.bottomMargin: Style.space(10)
         spacing: Style.space(4)
 
         Repeater {
@@ -426,7 +435,7 @@ Item {
             height: Math.max(4, Math.min(Style.space(36), (val / 100) * Style.space(36)))
             anchors.bottom: parent.bottom
             radius: 2
-            color: Color.accent
+            color: OmarchyPalette.Color.accent
             opacity: 0.35 + (index / 20.0) * 0.65
 
             Behavior on height { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }

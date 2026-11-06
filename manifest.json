@@ -5,6 +5,7 @@
   "version": "1.2.0",
   "author": "Daemon0",
   "description": "Unified system telemetry, audio controls, and hardware management center for Omarchy",
+  "icon": "assets/system-pulse.svg",
   "kinds": [
     "bar-widget"
   ],

@@ -18,6 +18,7 @@ BarWidget {
     function open(): void { root.open() }
     function close(): void { root.close() }
     function toggle(): void { root.toggle() }
+    function switchTab(index: int): void { dashboard.activeTabIndex = index; root.open() }
   }
 
   property date currentDate: new Date()
