@@ -39,30 +39,8 @@ BarWidget {
   }
 
   // ==========================================================================
-  // REAL-TIME EVENT BUS (CLOUD SYNC & STUDY FOCUS MONITORING)
+  // REAL-TIME EVENT BUS (STUDY FOCUS MONITORING)
   // ==========================================================================
-  readonly property string syncStatePath: (Quickshell.env("XDG_RUNTIME_DIR") || ("/run/user/" + Quickshell.env("UID"))) + "/omarchy-cloud-sync/state.json"
-  property bool isSyncing: false
-  property string syncSpeed: "0 B/s"
-  property real syncPct: 0.0
-
-  FileView {
-    id: syncStateView
-    path: root.syncStatePath
-    watchChanges: true
-    printErrors: false
-    onFileChanged: reload()
-    onLoaded: {
-      var raw = text()
-      if (!raw || raw.trim() === "") return
-      try {
-        var d = JSON.parse(raw.trim())
-        root.isSyncing = (d.active === true)
-        root.syncSpeed = d.speed || "0 B/s"
-        root.syncPct = (typeof d.progress_pct === "number") ? d.progress_pct : 0.0
-      } catch(e) {}
-    }
-  }
 
   readonly property string focusStatePath: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/omarchy-study-mode/state.json"
   property bool isStudying: false
@@ -357,37 +335,6 @@ BarWidget {
         }
       }
 
-      // 6. Dynamic Cloud Sync Event State
-      Row {
-        spacing: Style.space(4)
-        anchors.verticalCenter: parent.verticalCenter
-        visible: root.isSyncing
-
-        Rectangle {
-          width: 1
-          height: Style.space(14)
-          color: root.bar ? root.bar.barForeground : Color.bar.text
-          opacity: 0.25
-          anchors.verticalCenter: parent.verticalCenter
-        }
-
-        Text {
-          text: "󰓦"
-          color: Color.accent
-          font.family: root.bar ? root.bar.fontFamily : Style.font.family
-          font.pixelSize: Style.bar.iconFont
-          anchors.verticalCenter: parent.verticalCenter
-        }
-
-        Text {
-          text: root.syncSpeed !== "0 B/s" ? root.syncSpeed : (Math.round(root.syncPct) + "%")
-          color: root.bar ? root.bar.barForeground : Color.bar.text
-          font.family: root.bar ? root.bar.fontFamily : Style.font.family
-          font.pixelSize: Style.font.caption
-          font.bold: true
-          anchors.verticalCenter: parent.verticalCenter
-        }
-      }
 
       // 7. Dynamic Study Focus Event State
       Row {
